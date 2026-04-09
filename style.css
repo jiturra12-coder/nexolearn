@@ -144,13 +144,11 @@ footer {
   font-size: 13px;
   opacity: 0.3;
 .features {
-  display: flex;
-  justify-content: center;
-  align-items: stretch;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 40px;
-  padding: 80px 20px;
   max-width: 1000px;
-  margin: auto;
+  margin: 60px auto;
 }
 
 /* RESPONSIVE */
