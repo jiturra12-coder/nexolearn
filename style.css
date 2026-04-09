@@ -143,6 +143,14 @@ footer {
   padding: 40px;
   font-size: 13px;
   opacity: 0.3;
+.features {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  gap: 40px;
+  padding: 80px 20px;
+  max-width: 1000px;
+  margin: auto;
 }
 
 /* RESPONSIVE */
@@ -156,12 +164,4 @@ footer {
     padding: 20px;
   }
 
-  .features {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .card {
-    width: 90%;
-  }
-}
+  
