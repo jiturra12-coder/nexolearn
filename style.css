@@ -1,26 +1,30 @@
+/* RESET */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
+/* BODY */
 body {
   background: #05070d;
   color: #00ff88;
   font-family: 'JetBrains Mono', monospace;
+  overflow-x: hidden;
 }
 
 /* TERMINAL */
 .terminal {
-  padding: 40px;
   max-width: 900px;
   margin: auto;
+  padding: 40px 20px;
 }
 
-/* TEXTO INICIAL */
+/* LÍNEAS SISTEMA */
 .line {
-  opacity: 0.5;
   font-size: 14px;
+  opacity: 0.5;
+  margin-bottom: 5px;
 }
 
 /* TÍTULO */
@@ -28,11 +32,13 @@ body {
   margin-top: 40px;
   font-size: 48px;
   color: white;
+  letter-spacing: 2px;
 }
 
-/* SUB */
+/* SUBTÍTULO */
 .subtitle {
-  margin-top: 10px;
+  margin-top: 15px;
+  font-size: 16px;
   opacity: 0.6;
 }
 
@@ -42,16 +48,19 @@ body {
 }
 
 .command {
-  margin-bottom: 25px;
+  margin-bottom: 30px;
 }
 
 .command span {
   color: #00ff88;
+  font-size: 16px;
 }
 
 .command p {
-  opacity: 0.5;
+  margin-top: 5px;
   margin-left: 15px;
+  opacity: 0.5;
+  font-size: 14px;
 }
 
 /* BOTÓN */
@@ -62,24 +71,42 @@ body {
   border: 1px solid #00ff88;
   color: #00ff88;
   text-decoration: none;
-  transition: 0.3s;
+  transition: 0.3s ease;
+  font-size: 14px;
 }
 
 .cta:hover {
   background: #00ff88;
-  color: black;
+  color: #05070d;
 }
 
 /* STATUS */
 .status {
   margin-top: 60px;
-  font-size: 14px;
-  opacity: 0.5;
+  font-size: 13px;
+  opacity: 0.4;
+}
+
+/* EFECTO TERMINAL (OPCIONAL PRO) */
+.title::after {
+  content: "_";
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%, 50%, 100% { opacity: 1; }
+  25%, 75% { opacity: 0; }
 }
 
 /* RESPONSIVE */
 @media (max-width: 768px) {
+
   .title {
     font-size: 32px;
   }
+
+  .terminal {
+    padding: 30px 15px;
+  }
+
 }
