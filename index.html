@@ -1,3 +1,4 @@
+<div class="container">
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -94,25 +95,54 @@
 
     <h2>Activar usuario</h2>
 
-    <form id="nexolearn-form">
+   <form id="nexolearn-form">
 
-      <input type="text" placeholder="Nombre" required>
-      <input type="email" placeholder="Email" required>
-      <input type="text" placeholder="¿Qué sabes hacer?" required>
+  <input type="text" placeholder="Nombre" required>
+  <input type="email" placeholder="Email" required>
 
-      <select required>
-        <option value="">Nivel</option>
-        <option>Básico</option>
-        <option>Intermedio</option>
-        <option>Avanzado</option>
-      </select>
+  <input type="text" placeholder="Habilidad principal" required>
 
-      <input type="number" placeholder="Precio en Nexos" required>
+  <!-- NIVEL -->
+  <select required>
+    <option value="">Nivel</option>
+    <option value="basico">Básico (puedo enseñar lo simple)</option>
+    <option value="intermedio">Intermedio (resuelvo problemas reales)</option>
+    <option value="avanzado">Avanzado (puedo cobrar sin problema)</option>
+  </select>
 
-      <button class="btn-glow full">Activar sistema</button>
+  <!-- TIPO -->
+  <select required>
+    <option value="">Tipo de servicio</option>
+    <option>Clase en vivo</option>
+    <option>Chat</option>
+    <option>Recurso / PDF</option>
+  </select>
 
-    </form>
+  <!-- PRECIO -->
+  <input type="number" placeholder="Precio en Nexos" required>
 
+  <!-- DISPONIBILIDAD -->
+  <select required>
+    <option value="">Disponibilidad</option>
+    <option>Inmediata</option>
+    <option>Hoy</option>
+    <option>Esta semana</option>
+  </select>
+
+  <!-- VALIDACIÓN -->
+  <select required>
+    <option value="">¿Tienes prueba de lo que sabes?</option>
+    <option>Sí (video / experiencia)</option>
+    <option>No, pero puedo demostrarlo</option>
+  </select>
+
+  <textarea placeholder="Describe lo que ofreces"></textarea>
+
+  <button class="btn-glow full">
+    Activar sistema
+  </button>
+
+</form>
     <p class="mail">admin@nexolearn.cl</p>
 
   </div>
@@ -132,3 +162,4 @@ function scrollToForm(){
 
 </body>
 </html>
+</div>
