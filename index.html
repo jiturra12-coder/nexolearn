@@ -1,111 +1,93 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  
-  <title>NexoLearn</title>
-
-  <!-- SEO -->
-  <meta name="description" content="Convierte tu conocimiento en dinero con NexoLearn">
-
-  <!-- FONTS -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NexoLearn | Convierte conocimiento en dinero</title>
   <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<!-- ===================== -->
-<!-- 🔥 HERO OS (IMPACTO) -->
-<!-- ===================== -->
+  <!-- NAV -->
+  <header class="nav">
+    <h1 class="logo">NexoLearn</h1>
+    <button class="btn-primary">Empezar</button>
+  </header>
 
-<section class="terminal">
-
-  <p class="line">Conecta. Aprende. Genera valor</p>
-
-  <h1 class="title">NEXOLEARN</h1>
-
-  <p class="line">
-    No mostramos personas.<br>
-    Mostramos la mejor conexión posible para lograr un resultado.
-  </p>
-
-  <p class="subtitle">Haz dinero con lo que ya sabes</p>
-
-  <div class="commands">
-    <div class="command">
-      <span>> Aprender</span>
-      <p>Adquiere habilidades en sesiones rápidas</p>
+  <!-- HERO -->
+  <section class="hero">
+    <h2>Haz dinero con lo que ya sabes</h2>
+    <p>Aprende, enseña o crea recursos. Todo se convierte en ingresos.</p>
+    <div class="cta-group">
+      <button class="btn-primary">Quiero ganar dinero</button>
+      <button class="btn-secondary">Explorar</button>
     </div>
+  </section>
 
-    <div class="command">
-      <span>> Enseñar</span>
-      <p>Comparte conocimiento y genera valor</p>
+  <!-- COMO FUNCIONA -->
+  <section class="how">
+    <h2>Cómo funciona</h2>
+
+    <div class="steps">
+      <div class="card">
+        <h3>1. Publica lo que sabes</h3>
+        <p>Desde guitarra hasta arreglar una puerta. Todo vale.</p>
+      </div>
+
+      <div class="card">
+        <h3>2. Conecta con personas</h3>
+        <p>Sesiones rápidas, directas y pagadas.</p>
+      </div>
+
+      <div class="card">
+        <h3>3. Gana dinero</h3>
+        <p>Convierte tu conocimiento en ingresos reales.</p>
+      </div>
     </div>
+  </section>
 
-    <div class="command">
-      <span>> Conectar</span>
-      <p>Interactúa con personas reales</p>
-    </div>
-  </div>
+  <!-- USUARIOS (SIMULACIÓN DATA) -->
+  <section class="users">
+    <h2>Usuarios activos</h2>
+    <div id="user-list"></div>
+  </section>
 
-  <a href="https://instagram.com/nexolearnp2p/" target="_blank" class="cta">
-    Ejecutar sistema
-  </a>
+  <!-- CTA FINAL -->
+  <section class="cta">
+    <h2>Tu conocimiento ya tiene valor</h2>
+    <button class="btn-primary big">Empezar ahora</button>
+  </section>
 
-  <div class="status">
-    <p>● sistema activo</p>
-    <p>● NexoLearn™ 2026</p>
-  </div>
+  <!-- FOOTER -->
+  <footer>
+    <p>© 2026 NexoLearn</p>
+  </footer>
 
-</section>
+  <!-- SCRIPT -->
+  <script>
+    const users = [
+      {nombre: "Juan", skill: "Guitarra", venta: true},
+      {nombre: "Ana", skill: "Cocina", venta: false},
+      {nombre: "Luis", skill: "Excel", venta: true}
+    ];
 
-<!-- ===================== -->
-<!-- 🧠 PRODUCTO -->
-<!-- ===================== -->
+    let html = "";
 
-<section class="product">
+    users.forEach(u => {
+      const estado = u.venta ? "🟢 Generando" : "🔴 Activar";
 
-  <h2>Convierte tu conocimiento en dinero</h2>
-  <p>Interacciones reales. Valor real. Sin contenido innecesario.</p>
+      html += `
+        <div class="user-card">
+          <h4>${u.nombre}</h4>
+          <p>${u.skill}</p>
+          <span>${estado}</span>
+        </div>
+      `;
+    });
 
-  <div class="system">
-
-    <div class="block">
-      <h3>Descubre</h3>
-      <p>Personas activas en tiempo real</p>
-    </div>
-
-    <div class="block">
-      <h3>Interactúa</h3>
-      <p>Conversaciones directas o guiadas</p>
-    </div>
-
-    <div class="block">
-      <h3>Gana</h3>
-      <p>Convierte conocimiento en ingresos</p>
-    </div>
-
-  </div>
-
-</section>
-
-<!-- ===================== -->
-<!-- 🚀 CTA FINAL -->
-<!-- ===================== -->
-
-<section class="cta-final">
-  <h2>Empieza ahora</h2>
-  <p>Conecta, interactúa y genera valor</p>
-
-  <a href="https://instagram.com/nexolearnp2p" target="_blank" class="cta big">
-    Entrar a la comunidad
-  </a>
-</section>
-
-<footer>
-  <p>© 2026 NexoLearn</p>
-</footer>
+    document.getElementById("user-list").innerHTML = html;
+  </script>
 
 </body>
 </html>
