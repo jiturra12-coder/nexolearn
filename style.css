@@ -105,4 +105,43 @@ footer {
   text-align: center;
   padding: 20px;
   background: #000;
+  /* FORMULARIO */
+.form-section {
+  padding: 60px 20px;
+  text-align: center;
+  background: #0c0c0c;
+}
+
+form {
+  max-width: 500px;
+  margin: 20px auto;
+  display: flex;
+  flex-direction: column;
+}
+
+form input,
+form select,
+form textarea {
+  margin: 10px 0;
+  padding: 12px;
+  border: none;
+  border-radius: 5px;
+  background: #1a1a1a;
+  color: white;
+}
+
+form textarea {
+  min-height: 100px;
+}
+
+/* CONTACTO */
+.contacto {
+  margin-top: 20px;
+  font-size: 0.9rem;
+}
+
+.contacto a {
+  color: #00ff88;
+  text-decoration: none;
+}
 }
