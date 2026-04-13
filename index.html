@@ -6,42 +6,49 @@
 
 <title>NexoLearn</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Space+Grotesk:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Orbitron:wght@500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 
 </head>
 
 <body>
 
-<!-- NAV -->
-<header class="nav glass">
-  <h1 class="logo">NEXOLEARN</h1>
+<!-- BACKGROUND FX -->
+<div class="bg"></div>
 
-  <div class="nav-actions">
-    <a href="https://instagram.com/nexolearnp2p/" target="_blank" class="btn-ig">
+<!-- NAV -->
+<header class="nav">
+  <h1 class="logo">NEXO<span>LEARN</span></h1>
+
+  <div class="nav-right">
+    <a href="https://instagram.com/nexolearnp2p" target="_blank" class="ig">
       @nexolearnp2p
     </a>
-    <button onclick="scrollToForm()" class="btn-main">Entrar</button>
+    <button onclick="scrollToForm()" class="btn-glow">Entrar</button>
   </div>
 </header>
 
 <!-- HERO -->
 <section class="hero">
 
-  <div class="hero-box glass">
+  <div class="hero-content">
+    <p class="status">● Sistema activo</p>
 
-    <p class="micro">Sistema activo</p>
+    <h1 class="title">
+      Convierte conocimiento<br>en dinero
+    </h1>
 
-    <h1>Convierte conocimiento en dinero</h1>
-
-    <p class="sub">
-      No mostramos personas.  
+    <p class="desc">
+      No mostramos personas.<br>
       Mostramos la mejor conexión para lograr un resultado.
     </p>
 
     <div class="hero-buttons">
-      <button onclick="scrollToForm()" class="btn-main">Generar ingresos</button>
-      <a href="https://instagram.com/nexolearnp2p/" target="_blank" class="btn-ghost">
+      <button onclick="scrollToForm()" class="btn-glow big">
+        Generar ingresos
+      </button>
+
+      <a href="https://instagram.com/nexolearnp2p" class="btn-outline">
         Comunidad
       </a>
     </div>
@@ -50,34 +57,30 @@
 
 </section>
 
-<!-- SISTEMA -->
-<section class="system">
+<!-- FEATURES -->
+<section class="features">
 
-  <div class="system-grid">
+  <div class="feature">
+    <h3>Aprender</h3>
+    <p>Sesiones rápidas, resultado inmediato</p>
+  </div>
 
-    <div class="card glass">
-      <h3>Aprender</h3>
-      <p>Sesiones rápidas, resultado inmediato</p>
-    </div>
+  <div class="feature">
+    <h3>Enseñar</h3>
+    <p>Convierte habilidades en ingresos</p>
+  </div>
 
-    <div class="card glass">
-      <h3>Enseñar</h3>
-      <p>Convierte habilidades en ingresos</p>
-    </div>
-
-    <div class="card glass">
-      <h3>Conectar</h3>
-      <p>Interacción directa y real</p>
-    </div>
-
+  <div class="feature">
+    <h3>Conectar</h3>
+    <p>Interacción directa, sin fricción</p>
   </div>
 
 </section>
 
 <!-- FORM -->
-<section class="form-section" id="formulario">
+<section class="form" id="formulario">
 
-  <div class="form-box glass">
+  <div class="form-box">
 
     <h2>Activar usuario</h2>
 
@@ -85,7 +88,6 @@
 
       <input type="text" placeholder="Nombre" required>
       <input type="email" placeholder="Email" required>
-
       <input type="text" placeholder="¿Qué sabes hacer?" required>
 
       <select required>
@@ -95,26 +97,13 @@
         <option>Avanzado</option>
       </select>
 
-      <select required>
-        <option value="">Objetivo</option>
-        <option>Ganar dinero</option>
-        <option>Aprender</option>
-        <option>Ambas</option>
-      </select>
-
       <input type="number" placeholder="Precio en Nexos" required>
 
-      <textarea placeholder="Describe lo que ofreces"></textarea>
-
-      <button type="submit" class="btn-main full">
-        Activar sistema
-      </button>
+      <button class="btn-glow full">Activar sistema</button>
 
     </form>
 
-    <p class="contact">
-      admin@nexolearn.cl
-    </p>
+    <p class="mail">admin@nexolearn.cl</p>
 
   </div>
 
@@ -122,38 +111,13 @@
 
 <!-- FOOTER -->
 <footer>
-  <p>● NexoLearn™ 2026</p>
+  <p>NexoLearn™ 2026</p>
 </footer>
 
 <script>
 function scrollToForm(){
   document.getElementById("formulario").scrollIntoView({behavior:"smooth"});
 }
-
-document.getElementById("nexolearn-form")
-.addEventListener("submit", async function(e){
-  e.preventDefault();
-
-  const f = e.target;
-
-  const data = {
-    nombre: f[0].value,
-    email: f[1].value,
-    habilidad: f[2].value,
-    nivel: f[3].value,
-    objetivo: f[4].value,
-    precio: f[5].value,
-    descripcion: f[6].value
-  };
-
-  await fetch("TU_URL_DE_APPS_SCRIPT", {
-    method:"POST",
-    body: JSON.stringify(data)
-  });
-
-  alert("Usuario activado");
-  f.reset();
-});
 </script>
 
 </body>
