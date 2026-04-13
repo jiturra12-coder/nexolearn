@@ -66,41 +66,63 @@ body{
 /* HERO */
 .hero{
   text-align:center;
-  padding:100px 20px;
+  padding:140px 20px; /* MÁS AIRE */
 }
 
 .title{
-  font-size:3rem;
-  margin:20px 0;
+  font-size:3.2rem;
+  margin-bottom:30px;
+  line-height:1.1;
 }
 
 .desc{
-  opacity:0.6;
+  opacity:0.7;
+  margin-bottom:40px;
+  font-size:1.1rem;
+  line-height:1.6;
 }
 
-/* BOTONES */
+/* CONTENEDOR BOTONES */
+.hero-buttons{
+  display:flex;
+  justify-content:center;
+  gap:20px;
+  flex-wrap:wrap;
+}
+
+/* BOTÓN PRINCIPAL */
 .btn-glow{
   background:#00ff88;
   color:black;
-  padding:12px 20px;
+  padding:16px 28px;
   border:none;
-  border-radius:8px;
+  border-radius:10px;
   cursor:pointer;
   box-shadow:0 0 20px #00ff88;
+  transition:0.3s;
 }
 
 .btn-glow:hover{
   transform:scale(1.05);
+  box-shadow:0 0 35px #00ff88;
 }
 
+/* BOTÓN SECUNDARIO */
 .btn-outline{
   border:1px solid #00ff88;
   color:#00ff88;
-  padding:12px 20px;
+  padding:16px 28px;
   text-decoration:none;
-  border-radius:8px;
+  border-radius:10px;
+  transition:0.3s;
 }
 
+.btn-outline:hover{
+  background:#00ff88;
+  color:black;
+}
+
+/* UTILIDADES */
 .big{
   font-size:1.1rem;
 }
@@ -109,6 +131,20 @@ body{
   width:100%;
 }
 
+/* MOBILE */
+@media (max-width:768px){
+  .hero{
+    padding:100px 20px;
+  }
+
+  .title{
+    font-size:2.2rem;
+  }
+
+  .desc{
+    font-size:1rem;
+  }
+}
 /* FEATURES */
 .features{
   display:flex;
