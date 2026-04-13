@@ -166,3 +166,7 @@ footer{
   padding:20px;
   opacity:0.3;
 }
+form select{
+  appearance:none;
+  cursor:pointer;
+}
