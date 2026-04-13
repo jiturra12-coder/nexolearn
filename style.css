@@ -1,40 +1,108 @@
-/* SECCIÓN PRODUCTO */
-.product {
-  text-align: center;
-  padding: 100px 20px;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  background: #0f0f0f;
   color: white;
 }
 
-/* BLOQUES */
-.system {
+/* NAV */
+.nav {
   display: flex;
+  justify-content: space-between;
+  padding: 20px;
+  background: #111;
+}
+
+.logo {
+  font-weight: bold;
+}
+
+/* HERO */
+.hero {
+  text-align: center;
+  padding: 80px 20px;
+}
+
+.hero h2 {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+}
+
+.cta-group {
+  margin-top: 20px;
+}
+
+/* BOTONES */
+.btn-primary {
+  background: #00ff88;
+  color: black;
+  border: none;
+  padding: 12px 20px;
+  margin: 5px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.btn-secondary {
+  background: transparent;
+  border: 1px solid white;
+  color: white;
+  padding: 12px 20px;
+  cursor: pointer;
+}
+
+.big {
+  font-size: 1.2rem;
+  padding: 15px 30px;
+}
+
+/* SECCIONES */
+section {
+  padding: 60px 20px;
+}
+
+.how .steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
   justify-content: center;
-  gap: 30px;
-  margin-top: 40px;
 }
 
-.block {
-  max-width: 200px;
+.card {
+  background: #1a1a1a;
+  padding: 20px;
+  border-radius: 10px;
+  width: 250px;
 }
 
-/* RESPONSIVE PRO */
-@media (max-width: 768px) {
+/* USERS */
+.users {
+  text-align: center;
+}
 
-  .system {
-    flex-direction: column;
-    align-items: center;
-  }
+.user-card {
+  background: #1a1a1a;
+  padding: 15px;
+  margin: 10px;
+  border-radius: 10px;
+  display: inline-block;
+  width: 200px;
+}
 
-  .terminal {
-    padding: 30px 15px;
-  }
+/* CTA FINAL */
+.cta {
+  text-align: center;
+  background: #111;
+}
 
-  .title {
-    font-size: 32px;
-  }
-
-  .cta {
-    width: 100%;
-    text-align: center;
-  }
+/* FOOTER */
+footer {
+  text-align: center;
+  padding: 20px;
+  background: #000;
 }
