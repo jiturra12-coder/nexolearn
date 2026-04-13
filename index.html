@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="NexoLearn: Convierte conocimiento en ingresos con sesiones cortas, pago inmediato y conexión directa." />
   <title>NexoLearn</title>
 
   <!-- Fonts -->
@@ -15,7 +16,7 @@
 <body>
 
   <!-- FX BACKGROUND -->
-  <div class="bg"></div>
+  <div class="bg" aria-hidden="true"></div>
 
   <!-- CONTENEDOR GLOBAL -->
   <div class="container">
@@ -25,156 +26,164 @@
       <div class="logo">NEXO<span>LEARN</span></div>
 
       <div class="nav-right">
-        <a href="https://instagram.com/nexolearnp2p/" target="_blank" class="ig">
+        <a href="https://instagram.com/nexolearnp2p/" target="_blank" rel="noopener noreferrer" class="ig">
           @nexolearnp2p
         </a>
-        <button class="btn-glow" onclick="scrollToForm()">Entrar</button>
+        <button type="button" class="btn-glow" onclick="scrollToForm()">Entrar</button>
       </div>
     </header>
 
-    <!-- HERO -->
-    <section class="hero">
-      <div class="hero-content">
-        <p class="status">● Sistema activo</p>
+    <main>
+      <!-- HERO -->
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-content">
+          <p class="status">● Sistema activo</p>
 
-        <h1 class="title">
-          Convierte conocimiento<br>en dinero
-        </h1>
+          <h1 id="hero-title" class="title">
+            Convierte conocimiento<br>en dinero
+          </h1>
 
-        <p class="desc">
-          No mostramos personas.<br>
-          Mostramos la mejor conexión para lograr un resultado.
-        </p>
+          <p class="desc">
+            Personas ya están generando ingresos ahora mismo.<br>
+            Tú puedes ser el siguiente.
+          </p>
 
-        <div class="hero-buttons">
-  <button class="btn-glow big">Generar ingresos</button>
-  <a href="https://instagram.com/nexolearnp2p" class="btn-outline">Comunidad</a>
-</div>
-
-        <div class="hero-buttons">
-          <button class="btn-glow big" onclick="scrollToForm()">
-            Generar ingresos
-          </button>
-
-          <a href="https://instagram.com/nexolearnp2p/" target="_blank" class="btn-outline">
-            Comunidad
-          </a>
+          <div class="hero-buttons">
+            <button type="button" class="btn-glow big" onclick="scrollToForm()">Generar ingresos</button>
+            <a href="https://instagram.com/nexolearnp2p/" target="_blank" rel="noopener noreferrer" class="btn-outline">Comunidad</a>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- FEATURES -->
-    <section class="features">
+      <!-- FEATURES -->
+      <section class="features" aria-labelledby="features-title">
+        <h2 class="section-title visually-hidden" id="features-title">Beneficios principales</h2>
 
-      <div class="feature-card">
-        <div class="feature-icon">01</div>
-        <h3>Aprender</h3>
-        <p>Adquiere habilidades en sesiones rápidas con resultados inmediatos.</p>
-      </div>
+        <div class="feature-card">
+          <div class="feature-icon">01</div>
+          <h3>Sesiones cortas, dinero real</h3>
+          <p>Adquiere habilidades en sesiones rápidas con resultados inmediatos.</p>
+        </div>
 
-      <div class="feature-card">
-        <div class="feature-icon">02</div>
-        <h3>Enseñar</h3>
-        <p>Transforma lo que sabes en ingresos reales, sin intermediarios.</p>
-      </div>
+        <div class="feature-card">
+          <div class="feature-icon">02</div>
+          <h3>20-45 min. Pago inmediato</h3>
+          <p>Transforma lo que sabes en ingresos reales, sin intermediarios.</p>
+        </div>
 
-      <div class="feature-card">
-        <div class="feature-icon">03</div>
-        <h3>Conectar</h3>
-        <p>Interacción directa con personas reales. Sin fricción. Sin ruido.</p>
-      </div>
+        <div class="feature-card">
+          <div class="feature-icon">03</div>
+          <h3>Conexión directa</h3>
+          <p>Interacción real con personas reales. Sin fricción. Sin ruido.</p>
+        </div>
+      </section>
 
-    </section>
+      <!-- FORM -->
+      <section class="form" id="formulario" aria-labelledby="form-title">
+        <div class="form-box">
+          <h2 id="form-title">Activar usuario</h2>
 
-    <!-- FORM -->
-    <section class="form" id="formulario">
+          <form id="nexolearn-form">
+            <div class="form-group">
+              <label for="nombre">Nombre</label>
+              <input id="nombre" name="nombre" type="text" placeholder="Nombre" required autocomplete="name" />
+            </div>
 
-      <div class="form-box">
-        <h2>Activar usuario</h2>
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input id="email" name="email" type="email" placeholder="Email" required autocomplete="email" />
+            </div>
 
-        <form id="nexolearn-form">
+            <div class="form-group">
+              <label for="habilidad">Habilidad principal</label>
+              <input id="habilidad" name="habilidad" type="text" placeholder="Habilidad principal" required autocomplete="off" />
+            </div>
 
-          <div class="form-group">
-            <input type="text" placeholder="Nombre" required />
-            <input type="email" placeholder="Email" required />
-          </div>
+            <div class="form-grid">
+              <div class="form-field">
+                <label for="nivel">Nivel</label>
+                <select id="nivel" name="nivel" required>
+                  <option value="" disabled selected>Selecciona nivel</option>
+                  <option>Básico</option>
+                  <option>Intermedio</option>
+                  <option>Avanzado</option>
+                </select>
+              </div>
 
-          <div class="form-group">
-            <input type="text" placeholder="Habilidad principal" required />
-          </div>
+              <div class="form-field">
+                <label for="tipo">Tipo</label>
+                <select id="tipo" name="tipo" required>
+                  <option value="" disabled selected>Selecciona tipo</option>
+                  <option>Clase</option>
+                  <option>Chat</option>
+                  <option>PDF</option>
+                </select>
+              </div>
+            </div>
 
-          <div class="form-group">
-            <select required>
-              <option value="">Nivel</option>
-              <option>Básico</option>
-              <option>Intermedio</option>
-              <option>Avanzado</option>
-            </select>
+            <div class="form-group">
+              <label for="precio">Precio en Nexos</label>
+              <input id="precio" name="precio" type="number" placeholder="Precio en Nexos" min="1" required />
+            </div>
 
-            <select required>
-              <option value="">Tipo</option>
-              <option>Clase</option>
-              <option>Chat</option>
-              <option>PDF</option>
-            </select>
-          </div>
+            <button type="submit" class="btn-glow full">Activar sistema</button>
+          </form>
 
-          <div class="form-group">
-            <input type="number" placeholder="Precio en Nexos" required />
-          </div>
-
-          <button type="submit" class="btn-glow full">
-            Activar sistema
-          </button>
-
-        </form>
-
-        <p class="mail">admin@nexolearn.cl</p>
-      </div>
-
-    </section>
+          <p id="form-feedback" class="form-feedback" aria-live="polite"></p>
+          <p class="mail">admin@nexolearn.cl</p>
+        </div>
+      </section>
+    </main>
 
     <!-- FOOTER -->
     <footer>
       <p>● NexoLearn™ 2026</p>
     </footer>
-
   </div>
 
   <!-- SCRIPT -->
   <script>
+    const form = document.getElementById("nexolearn-form");
+    const feedback = document.getElementById("form-feedback");
+
     function scrollToForm() {
-      document.getElementById("formulario").scrollIntoView({ behavior: "smooth" });
+      document.getElementById("formulario").scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
-    document.getElementById("nexolearn-form")
-      .addEventListener("submit", async function (e) {
-        e.preventDefault();
+    function setFeedback(message, isError = false) {
+      feedback.textContent = message;
+      feedback.className = isError ? "form-feedback form-feedback--error" : "form-feedback form-feedback--success";
+    }
 
-        const f = e.target;
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
 
-        const data = {
-          nombre: f[0].value,
-          email: f[1].value,
-          habilidad: f[2].value,
-          nivel: f[3].value,
-          tipo: f[4].value,
-          precio: f[5].value
-        };
+      const submitButton = form.querySelector("button[type='submit']");
+      const data = Object.fromEntries(new FormData(form).entries());
 
-        try {
-          await fetch("TU_URL_DE_APPS_SCRIPT", {
-            method: "POST",
-            body: JSON.stringify(data)
-          });
+      submitButton.disabled = true;
+      setFeedback("Enviando datos...", false);
 
-          alert("🔥 Usuario activado. Vamos a generar ingresos.");
-          f.reset();
+      try {
+        const response = await fetch("TU_URL_DE_APPS_SCRIPT", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        });
 
-        } catch {
-          alert("Error al enviar. Revisa conexión.");
+        if (!response.ok) {
+          throw new Error(`Error ${response.status}`);
         }
-      });
+
+        setFeedback("🔥 Usuario activado. Vamos a generar ingresos.", false);
+        form.reset();
+      } catch (error) {
+        console.error(error);
+        setFeedback("Error al enviar. Revisa conexión e intenta nuevamente.", true);
+      } finally {
+        submitButton.disabled = false;
+      }
+    });
   </script>
 
 </body>
