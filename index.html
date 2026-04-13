@@ -1,71 +1,85 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NexoLearn | Convierte conocimiento en dinero</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>NexoLearn</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Space+Grotesk:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+
 </head>
 
 <body>
 
-  <!-- NAV -->
-  <header class="nav">
-    <h1 class="logo">NexoLearn</h1>
+<!-- NAV -->
+<header class="nav glass">
+  <h1 class="logo">NEXOLEARN</h1>
 
-    <div class="nav-actions">
-      <a href="https://instagram.com/nexolearnp2p" target="_blank" class="btn-ig">
-        @nexolearnp2p
+  <div class="nav-actions">
+    <a href="https://instagram.com/nexolearnp2p/" target="_blank" class="btn-ig">
+      @nexolearnp2p
+    </a>
+    <button onclick="scrollToForm()" class="btn-main">Entrar</button>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+
+  <div class="hero-box glass">
+
+    <p class="micro">Sistema activo</p>
+
+    <h1>Convierte conocimiento en dinero</h1>
+
+    <p class="sub">
+      No mostramos personas.  
+      Mostramos la mejor conexión para lograr un resultado.
+    </p>
+
+    <div class="hero-buttons">
+      <button onclick="scrollToForm()" class="btn-main">Generar ingresos</button>
+      <a href="https://instagram.com/nexolearnp2p/" target="_blank" class="btn-ghost">
+        Comunidad
       </a>
-      <button class="btn-primary">Empezar</button>
     </div>
-  </header>
 
-  <!-- HERO -->
-  <section class="hero">
-    <h2>Haz dinero con lo que ya sabes</h2>
-    <p>Aprende, enseña o crea recursos. Todo se convierte en ingresos reales.</p>
+  </div>
 
-    <div class="cta-group">
-      <button class="btn-primary" onclick="scrollToForm()">Quiero ganar dinero</button>
-      <a href="https://instagram.com/nexolearnp2p" target="_blank" class="btn-secondary">
-        Ver comunidad
-      </a>
+</section>
+
+<!-- SISTEMA -->
+<section class="system">
+
+  <div class="system-grid">
+
+    <div class="card glass">
+      <h3>Aprender</h3>
+      <p>Sesiones rápidas, resultado inmediato</p>
     </div>
-  </section>
 
-  <!-- COMO FUNCIONA -->
-  <section class="how">
-    <h2>Cómo funciona</h2>
-
-    <div class="steps">
-      <div class="card">
-        <h3>1. Publica lo que sabes</h3>
-        <p>Desde guitarra hasta Excel o cocina. Todo sirve.</p>
-      </div>
-
-      <div class="card">
-        <h3>2. Conecta con personas</h3>
-        <p>Sesiones cortas, directas y pagadas.</p>
-      </div>
-
-      <div class="card">
-        <h3>3. Gana dinero</h3>
-        <p>Convierte tu conocimiento en ingresos reales.</p>
-      </div>
+    <div class="card glass">
+      <h3>Enseñar</h3>
+      <p>Convierte habilidades en ingresos</p>
     </div>
-  </section>
 
-  <!-- USUARIOS DEMO -->
-  <section class="users">
-    <h2>Actividad en vivo</h2>
-    <div id="user-list"></div>
-  </section>
+    <div class="card glass">
+      <h3>Conectar</h3>
+      <p>Interacción directa y real</p>
+    </div>
 
-  <!-- FORMULARIO -->
-  <section class="form-section" id="formulario">
-    <h2>Empieza ahora</h2>
-    <p>Completa esto y activa tu primera venta</p>
+  </div>
+
+</section>
+
+<!-- FORM -->
+<section class="form-section" id="formulario">
+
+  <div class="form-box glass">
+
+    <h2>Activar usuario</h2>
 
     <form id="nexolearn-form">
 
@@ -82,7 +96,7 @@
       </select>
 
       <select required>
-        <option value="">¿Qué quieres hacer?</option>
+        <option value="">Objetivo</option>
         <option>Ganar dinero</option>
         <option>Aprender</option>
         <option>Ambas</option>
@@ -90,92 +104,57 @@
 
       <input type="number" placeholder="Precio en Nexos" required>
 
-      <textarea placeholder="Describe brevemente lo que ofreces"></textarea>
+      <textarea placeholder="Describe lo que ofreces"></textarea>
 
-      <button type="submit" class="btn-primary big">
-        Empezar a ganar
+      <button type="submit" class="btn-main full">
+        Activar sistema
       </button>
 
     </form>
 
-    <p class="contacto">
-      ¿Dudas? Escríbenos:
-      <a href="mailto:admin@nexolearn.cl">admin@nexolearn.cl</a>
+    <p class="contact">
+      admin@nexolearn.cl
     </p>
-  </section>
 
-  <!-- CTA FINAL -->
-  <section class="cta">
-    <h2>Tu conocimiento ya tiene valor</h2>
-    <button class="btn-primary big" onclick="scrollToForm()">Activar ahora</button>
-  </section>
+  </div>
 
-  <!-- FOOTER -->
-  <footer>
-    <p>© 2026 NexoLearn</p>
-  </footer>
+</section>
 
-  <!-- SCRIPT -->
-  <script>
-    // Scroll suave
-    function scrollToForm() {
-      document.getElementById("formulario").scrollIntoView({behavior: "smooth"});
-    }
+<!-- FOOTER -->
+<footer>
+  <p>● NexoLearn™ 2026</p>
+</footer>
 
-    // Usuarios demo (puedes conectar a Sheets después)
-    const users = [
-      {nombre: "Juan", skill: "Guitarra", venta: true},
-      {nombre: "Ana", skill: "Cocina", venta: false},
-      {nombre: "Luis", skill: "Excel", venta: true}
-    ];
+<script>
+function scrollToForm(){
+  document.getElementById("formulario").scrollIntoView({behavior:"smooth"});
+}
 
-    let html = "";
+document.getElementById("nexolearn-form")
+.addEventListener("submit", async function(e){
+  e.preventDefault();
 
-    users.forEach(u => {
-      const estado = u.venta ? "🟢 Generando" : "🔴 Activar";
+  const f = e.target;
 
-      html += `
-        <div class="user-card">
-          <h4>${u.nombre}</h4>
-          <p>${u.skill}</p>
-          <span>${estado}</span>
-        </div>
-      `;
-    });
+  const data = {
+    nombre: f[0].value,
+    email: f[1].value,
+    habilidad: f[2].value,
+    nivel: f[3].value,
+    objetivo: f[4].value,
+    precio: f[5].value,
+    descripcion: f[6].value
+  };
 
-    document.getElementById("user-list").innerHTML = html;
+  await fetch("TU_URL_DE_APPS_SCRIPT", {
+    method:"POST",
+    body: JSON.stringify(data)
+  });
 
-    // FORM → GOOGLE SHEETS
-    document.getElementById("nexolearn-form")
-    .addEventListener("submit", async function(e) {
-      e.preventDefault();
-
-      const form = e.target;
-
-      const data = {
-        nombre: form[0].value,
-        email: form[1].value,
-        habilidad: form[2].value,
-        nivel: form[3].value,
-        objetivo: form[4].value,
-        precio: form[5].value,
-        descripcion: form[6].value
-      };
-
-      try {
-        await fetch("TU_URL_DE_APPS_SCRIPT", {
-          method: "POST",
-          body: JSON.stringify(data)
-        });
-
-        alert("🔥 Activado. Ahora vamos a generarte ingresos.");
-        form.reset();
-
-      } catch (err) {
-        alert("Error. Pero tranquilo… lo arreglamos.");
-      }
-    });
-  </script>
+  alert("Usuario activado");
+  f.reset();
+});
+</script>
 
 </body>
 </html>
