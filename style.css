@@ -1,127 +1,40 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: 'Inter', sans-serif;
-  background: #05070d;
+/* SECCIÓN PRODUCTO */
+.product {
+  text-align: center;
+  padding: 100px 20px;
   color: white;
 }
 
-/* HEADER */
-header {
-  display: flex;
-  justify-content: space-between;
-  padding: 30px 60px;
-}
-
-.logo {
-  font-weight: 600;
-}
-
-.btn {
-  background: white;
-  color: black;
-  padding: 8px 18px;
-  border-radius: 999px;
-  text-decoration: none;
-}
-
-/* HERO */
-.hero {
-  text-align: center;
-  padding: 180px 20px;
-}
-
-.hero h1 {
-  font-size: 64px;
-  max-width: 900px;
-  margin: auto;
-  letter-spacing: -2px;
-}
-
-.hero p {
-  margin-top: 20px;
-  opacity: 0.6;
-}
-
-.cta {
-  display: inline-block;
-  margin-top: 40px;
-  padding: 18px 40px;
-  border-radius: 999px;
-  background: white;
-  color: black;
-  text-decoration: none;
-}
-
-/* SYSTEM BLOCKS */
+/* BLOQUES */
 .system {
-  display: flex;
-  justify-content: center;
-  gap: 40px;
-  padding: 100px 20px;
-}
-
-.block {
-  max-width: 220px;
-}
-
-.block h3 {
-  margin-bottom: 10px;
-}
-
-/* ECONOMY */
-.economy {
-  padding: 120px 20px;
-  text-align: center;
-}
-
-.grid {
   display: flex;
   justify-content: center;
   gap: 30px;
   margin-top: 40px;
 }
 
-.card {
-  background: rgba(255,255,255,0.05);
-  padding: 30px;
-  border-radius: 12px;
-  min-width: 180px;
+.block {
+  max-width: 200px;
 }
 
-/* CTA FINAL */
-.cta-final {
-  text-align: center;
-  padding: 140px 20px;
-}
-
-.cta-final p {
-  opacity: 0.6;
-}
-
-/* FOOTER */
-footer {
-  text-align: center;
-  padding: 40px;
-  opacity: 0.3;
-}
-
-/* RESPONSIVE */
+/* RESPONSIVE PRO */
 @media (max-width: 768px) {
-  .hero h1 {
-    font-size: 40px;
-  }
 
   .system {
     flex-direction: column;
     align-items: center;
   }
 
-  .grid {
-    flex-direction: column;
+  .terminal {
+    padding: 30px 15px;
+  }
+
+  .title {
+    font-size: 32px;
+  }
+
+  .cta {
+    width: 100%;
+    text-align: center;
   }
 }
