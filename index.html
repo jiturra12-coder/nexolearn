@@ -27,12 +27,12 @@
 
   <!-- COMO FUNCIONA -->
   <section class="how">
-    <h2>Cómo funciona</h2>
+   
 
     <div class="steps">
       <div class="card">
         <h3>1. Publica lo que sabes</h3>
-        <p>Desde guitarra hasta arreglar una puerta. Todo vale.</p>
+     
       </div>
 
       <div class="card">
@@ -47,11 +47,7 @@
     </div>
   </section>
 
-  <!-- USUARIOS (SIMULACIÓN DATA) -->
-  <section class="users">
-    <h2>Usuarios activos</h2>
-    <div id="user-list"></div>
-  </section>
+ 
 
   <!-- CTA FINAL -->
   <section class="cta">
@@ -105,18 +101,7 @@
     <p>© 2026 NexoLearn</p>
   </footer>
 
-  <!-- SCRIPT -->
-  <script>
-    const users = [
-      {nombre: "Juan", skill: "Guitarra", venta: true},
-      {nombre: "Ana", skill: "Cocina", venta: false},
-      {nombre: "Luis", skill: "Excel", venta: true}
-    ];
 
-    let html = "";
-
-    users.forEach(u => {
-      const estado = u.venta ? "🟢 Generando" : "🔴 Activar";
 
       html += `
         <div class="user-card">
