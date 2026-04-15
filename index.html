@@ -24,7 +24,7 @@
         <div class="section">
           <h2>🎯 Habilidades que enseñas</h2>
 
-          <input name="teach1" placeholder="Habilidad 1">
+          <input name="teach1" placeholder="Habilidad 1" required>
           <input name="teach2" placeholder="Habilidad 2">
           <input name="teach3" placeholder="Habilidad 3">
           <input name="teach4" placeholder="Habilidad 4">
@@ -35,12 +35,15 @@
         <div class="section">
           <h2>📚 Intereses que quieres aprender</h2>
 
-          <input name="learn1" placeholder="Interés 1">
+          <input name="learn1" placeholder="Interés 1" required>
           <input name="learn2" placeholder="Interés 2">
           <input name="learn3" placeholder="Interés 3">
           <input name="learn4" placeholder="Interés 4">
           <input name="learn5" placeholder="Interés 5">
         </div>
+
+        <!-- MENSAJE -->
+        <div id="status" class="status"></div>
 
         <!-- BOTÓN -->
         <button type="submit">Guardar perfil</button>
@@ -50,35 +53,53 @@
     </div>
   </div>
 
-  <!-- SCRIPT BASE (listo para conectar luego) -->
+  <!-- SCRIPT COMPLETO -->
   <script>
     const form = document.getElementById("profileForm");
+    const status = document.getElementById("status");
 
     form.addEventListener("submit", (e) => {
       e.preventDefault();
 
       const data = new FormData(form);
 
+      const teach = [
+        data.get("teach1"),
+        data.get("teach2"),
+        data.get("teach3"),
+        data.get("teach4"),
+        data.get("teach5"),
+      ].filter(Boolean);
+
+      const learn = [
+        data.get("learn1"),
+        data.get("learn2"),
+        data.get("learn3"),
+        data.get("learn4"),
+        data.get("learn5"),
+      ].filter(Boolean);
+
+      // VALIDACIÓN
+      if (teach.length === 0 || learn.length === 0) {
+        status.innerText = "⚠️ Debes ingresar al menos 1 habilidad y 1 interés";
+        status.style.color = "orange";
+        return;
+      }
+
       const profile = {
-        teach: [
-          data.get("teach1"),
-          data.get("teach2"),
-          data.get("teach3"),
-          data.get("teach4"),
-          data.get("teach5"),
-        ],
-        learn: [
-          data.get("learn1"),
-          data.get("learn2"),
-          data.get("learn3"),
-          data.get("learn4"),
-          data.get("learn5"),
-        ],
+        teach,
+        learn,
+        timestamp: new Date().toISOString()
       };
 
       console.log("📦 Perfil capturado:", profile);
 
-      alert("Perfil listo 🚀 (revisar consola)");
+      // SIMULACIÓN (luego va Supabase aquí)
+      status.innerText = "✅ Perfil guardado correctamente";
+      status.style.color = "#22c55e";
+
+      // limpiar form (opcional)
+      form.reset();
     });
   </script>
 
