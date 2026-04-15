@@ -2,9 +2,8 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>NexoLearn</title>
-
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NexoLearn</title>
 
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
@@ -12,104 +11,102 @@
 
 <body>
 
-<div class="terminal">
+<!-- NAV -->
+<header class="nav">
+  <h1 class="logo">NexoLearn</h1>
+  <button class="btn-primary" onclick="scrollToForm()">Entrar</button>
+</header>
 
-  <!-- SISTEMA -->
-  <p class="line">Conecta. Aprende. Genera valor</p>
+<!-- HERO -->
+<section class="hero">
+  <h2>Convierte conocimiento en dinero</h2>
+  <p>Aprende, enseña y genera ingresos reales.</p>
+  <button class="btn-primary" onclick="scrollToForm()">Comenzar</button>
+</section>
 
-  <!-- TÍTULO -->
-  <h1 class="title">NEXOLEARN</h1>
+<!-- TERMINAL EXPERIENCE -->
+<section class="terminal">
+  <p>> Sistema activo</p>
+  <h1>NEXOLEARN</h1>
+  <p>No mostramos personas, mostramos conexiones óptimas.</p>
+</section>
 
-  <p class="line">
-    No mostramos personas.<br>
-    Mostramos la mejor conexión posible para lograr un resultado.
-  </p>
+<!-- PLANILLA / ONBOARDING -->
+<section class="form-section" id="formulario">
+  <h2>Activa tu perfil</h2>
 
-  <p class="subtitle">Haz dinero con lo que ya sabes</p>
+  <form id="profileForm">
 
-  <!-- COMANDOS -->
-  <div class="commands">
-    <div class="command">
-      <span>> Aprender</span>
-      <p>Adquiere habilidades en sesiones rápidas</p>
-    </div>
+    <input type="text" placeholder="Nombre" required>
+    <input type="email" placeholder="Email" required>
 
-    <div class="command">
-      <span>> Enseñar</span>
-      <p>Comparte conocimiento y genera valor</p>
-    </div>
-
-    <div class="command">
-      <span>> Conectar</span>
-      <p>Interactúa con personas reales</p>
-    </div>
-  </div>
-
-  <!-- FORMULARIO -->
-  <form id="profileForm" class="form">
-
-    <h2>🎯 Habilidades que enseñas</h2>
+    <h3>🎯 Habilidades que enseñas</h3>
     <input name="teach1" placeholder="Habilidad 1">
     <input name="teach2" placeholder="Habilidad 2">
     <input name="teach3" placeholder="Habilidad 3">
     <input name="teach4" placeholder="Habilidad 4">
     <input name="teach5" placeholder="Habilidad 5">
 
-    <h2>📚 Intereses que quieres aprender</h2>
+    <h3>📚 Intereses que quieres aprender</h3>
     <input name="learn1" placeholder="Interés 1">
     <input name="learn2" placeholder="Interés 2">
     <input name="learn3" placeholder="Interés 3">
     <input name="learn4" placeholder="Interés 4">
     <input name="learn5" placeholder="Interés 5">
 
-    <button type="submit">Guardar perfil</button>
+    <button type="submit" class="btn-primary big">
+      Activar perfil
+    </button>
 
-    <div id="status"></div>
+    <p id="status"></p>
 
   </form>
+</section>
 
-  <!-- CTA -->
-  <a href="#" class="cta">Ejecutar sistema</a>
-
-  <!-- STATUS -->
-  <div class="status">
-    <p>● NexoLearn™ 2026</p>
-  </div>
-
-</div>
+<!-- FOOTER -->
+<footer>
+  <p>© 2026 NexoLearn</p>
+</footer>
 
 <!-- SCRIPT -->
 <script>
-  const form = document.getElementById("profileForm");
-  const status = document.getElementById("status");
+function scrollToForm() {
+  document.getElementById("formulario").scrollIntoView({behavior: "smooth"});
+}
 
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
+const form = document.getElementById("profileForm");
+const status = document.getElementById("status");
 
-    const data = new FormData(form);
+form.addEventListener("submit", (e) => {
+  e.preventDefault();
 
-    const profile = {
-      teach: [
-        data.get("teach1"),
-        data.get("teach2"),
-        data.get("teach3"),
-        data.get("teach4"),
-        data.get("teach5"),
-      ].filter(Boolean),
+  const data = new FormData(form);
 
-      learn: [
-        data.get("learn1"),
-        data.get("learn2"),
-        data.get("learn3"),
-        data.get("learn4"),
-        data.get("learn5"),
-      ].filter(Boolean)
-    };
+  const profile = {
+    nombre: form[0].value,
+    email: form[1].value,
 
-    console.log("Perfil:", profile);
+    teach: [
+      data.get("teach1"),
+      data.get("teach2"),
+      data.get("teach3"),
+      data.get("teach4"),
+      data.get("teach5"),
+    ].filter(Boolean),
 
-    status.innerText = "✔ Perfil capturado";
-  });
+    learn: [
+      data.get("learn1"),
+      data.get("learn2"),
+      data.get("learn3"),
+      data.get("learn4"),
+      data.get("learn5"),
+    ].filter(Boolean),
+  };
+
+  console.log("🚀 Perfil:", profile);
+
+  status.innerText = "✔ Perfil activado correctamente";
+});
 </script>
 
 </body>
