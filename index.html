@@ -1,133 +1,97 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>NexoLearn</title>
 
-  <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono&display=swap"
-    rel="stylesheet"
-  />
-  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #020617;
+      color: white;
+      margin: 0;
+      text-align: center;
+    }
+
+    .container {
+      max-width: 400px;
+      margin: auto;
+      padding: 40px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border-radius: 6px;
+      border: none;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #22c55e;
+      border: none;
+      color: black;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    h1 { margin-bottom: 10px; }
+    p { color: #94a3b8; }
+  </style>
 </head>
 
 <body>
-  <!-- NAV -->
-  <header class="nav">
-    <h1 class="logo">NexoLearn</h1>
-    <button class="btn-primary" type="button" onclick="scrollToForm()">Entrar</button>
-  </header>
 
-  <!-- HERO -->
-  <section class="hero">
-    <h2>Convierte conocimiento en dinero</h2>
-    <p>Aprende, enseña y genera ingresos reales.</p>
-    <button class="btn-primary" type="button" onclick="scrollToForm()">Comenzar</button>
-  </section>
+<div class="container">
 
-  <!-- TERMINAL EXPERIENCE -->
-  <section class="terminal">
-    <p>&gt; Sistema activo</p>
-    <h1>NEXOLEARN</h1>
-    <p>No mostramos personas, mostramos conexiones óptimas.</p>
-  </section>
+  <h1>NexoLearn 🚀</h1>
+  <p>Activa tu cuenta</p>
 
-  <!-- PLANILLA / ONBOARDING -->
-  <section class="form-section" id="formulario">
-    <h2>Activa tu perfil</h2>
+  <form id="form">
 
-    <form id="profileForm">
-      <input type="text" name="name" placeholder="Nombre" required />
-      <input type="email" name="email" placeholder="Email" required />
-      <input type="password" name="password" placeholder="Contraseña segura" required>
+    <input type="email" id="email" placeholder="Email" required>
+    <input type="password" id="password" placeholder="Contraseña" required>
 
-      <h3>🎯 Habilidades que enseñas</h3>
-      <input name="teach1" placeholder="Habilidad 1" />
-      <input name="teach2" placeholder="Habilidad 2" />
-      <input name="teach3" placeholder="Habilidad 3" />
-      <input name="teach4" placeholder="Habilidad 4" />
-      <input name="teach5" placeholder="Habilidad 5" />
+    <button type="submit">Crear cuenta</button>
 
-      <h3>📚 Intereses que quieres aprender</h3>
-      <input name="learn1" placeholder="Interés 1" />
-      <input name="learn2" placeholder="Interés 2" />
-      <input name="learn3" placeholder="Interés 3" />
-      <input name="learn4" placeholder="Interés 4" />
-      <input name="learn5" placeholder="Interés 5" />
+  </form>
 
-      <button type="submit" class="btn-primary big">
-        Activar perfil
-      </button>
+</div>
 
-      <p id="status"></p>
-    </form>
-  </section>
+<script type="module">
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
-  <!-- FOOTER -->
-  <footer>
-    <p>© 2026 NexoLearn</p>
-  </footer>
+const supabase = createClient(
+  "https://zipnptfxkmlxsbtfzpjv.supabase.co",
+  "sb_publishable_PuLdqxyGqq_UKWT7qNGMLQ_GYrw73Ry"
+);
 
-  <!-- EMAILJS -->
-  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
-  <script>
-    function scrollToForm() {
-      const formSection = document.getElementById("formulario");
-      if (formSection) {
-        formSection.scrollIntoView({ behavior: "smooth" });
-      }
-    }
+const form = document.getElementById("form");
 
-    emailjs.init("TU_PUBLIC_KEY");
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
 
-    const form = document.getElementById("profileForm");
-    const status = document.getElementById("status");
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
 
-    form.addEventListener("submit", function (e) {
-      e.preventDefault();
+  const { error } = await supabase.auth.signUp({
+    email,
+    password,
+  });
 
-      const data = new FormData(form);
+  if (error) {
+    alert("❌ " + error.message);
+  } else {
+    alert("📩 Revisa tu correo para confirmar tu cuenta");
+  }
+});
+</script>
 
-      const name = data.get("name").toString().trim();
-      const email = data.get("email").toString().trim();
-
-      const teach = ["teach1", "teach2", "teach3", "teach4", "teach5"]
-        .map((key) => data.get(key).toString().trim())
-        .filter(Boolean);
-
-      const learn = ["learn1", "learn2", "learn3", "learn4", "learn5"]
-        .map((key) => data.get(key).toString().trim())
-        .filter(Boolean);
-
-      let insight = "Tu perfil tiene alto potencial";
-
-      if (teach.includes("Excel")) {
-        insight = "Excel tiene alta demanda → monetización rápida";
-      } else if (teach.includes("Inglés")) {
-        insight = "Inglés es una skill global → puedes escalar ingresos";
-      } else if (teach.length > 3) {
-        insight = "Tienes múltiples habilidades → alto potencial de ingresos";
-      }
-
-      const templateParams = {
-        name,
-        user_email: email,
-        teach: teach.join(", "),
-        learn: learn.join(", "),
-        insight,
-      };
-
-      emailjs
-        .send("TU_SERVICE_ID", "TU_TEMPLATE_ID", templateParams)
-        .then(function () {
-          status.innerText = "📩 Email personalizado enviado 🚀";
-        })
-        .catch(function (error) {
-          console.error(error);
-          status.innerText = "❌ Error enviando email";
-        });
-    });
-  </script>
 </body>
 </html>
