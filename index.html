@@ -70,43 +70,65 @@
 
 <!-- SCRIPT -->
 <script>
-function scrollToForm() {
-  document.getElementById("formulario").scrollIntoView({behavior: "smooth"});
-}
-
 const form = document.getElementById("profileForm");
 const status = document.getElementById("status");
 
-form.addEventListener("submit", (e) => {
+form.addEventListener("submit", function(e) {
   e.preventDefault();
 
   const data = new FormData(form);
 
-  const profile = {
-    nombre: form[0].value,
-    email: form[1].value,
+  const name = form[0].value;
+  const email = form[1].value;
 
-    teach: [
-      data.get("teach1"),
-      data.get("teach2"),
-      data.get("teach3"),
-      data.get("teach4"),
-      data.get("teach5"),
-    ].filter(Boolean),
+  const teach = [
+    data.get("teach1"),
+    data.get("teach2"),
+    data.get("teach3"),
+    data.get("teach4"),
+    data.get("teach5"),
+  ].filter(Boolean);
 
-    learn: [
-      data.get("learn1"),
-      data.get("learn2"),
-      data.get("learn3"),
-      data.get("learn4"),
-      data.get("learn5"),
-    ].filter(Boolean),
+  const learn = [
+    data.get("learn1"),
+    data.get("learn2"),
+    data.get("learn3"),
+    data.get("learn4"),
+    data.get("learn5"),
+  ].filter(Boolean);
+
+  // 🧠 LÓGICA SIMPLE DE INSIGHT
+  let insight = "Tu perfil tiene alto potencial";
+
+  if (teach.includes("Excel")) {
+    insight = "Excel tiene alta demanda → monetización rápida";
+  }
+
+  if (teach.includes("Inglés")) {
+    insight = "Inglés es una skill global → puedes escalar ingresos";
+  }
+
+  if (teach.length > 3) {
+    insight = "Tienes múltiples habilidades → alto potencial de ingresos";
+  }
+
+  const templateParams = {
+    name: name,
+    user_email: email,
+    teach: teach.join(", "),
+    learn: learn.join(", "),
+    insight: insight
   };
 
-  console.log("🚀 Perfil:", profile);
-
-  status.innerText = "✔ Perfil activado correctamente";
+  emailjs.send("TU_SERVICE_ID", "TU_TEMPLATE_ID", templateParams)
+    .then(() => {
+      status.innerText = "📩 Email personalizado enviado 🚀";
+    })
+    .catch(() => {
+      status.innerText = "❌ Error enviando email";
+    });
 });
+</script>
 </script>
 
 </body>
