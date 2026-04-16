@@ -2,92 +2,134 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>NexoLearn</title>
+  <title>NexoLearn - Red de Aprendizaje Colaborativo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Plataforma donde enseñar y aprender son parte del mismo proceso">
 
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<!-- NAV -->
-<header class="nav">
-  <div class="logo">NEXO<span>LEARN</span></div>
-  <button class="btn-outline" onclick="scrollToForm()">Entrar</button>
-</header>
+<!-- NAVIGATION -->
+<nav class="nav">
+  <div class="logo">NEX<span>O</span>LEARN</div>
+  <div style="display: flex; gap: 16px; align-items: center;">
+    <button class="btn-outline" onclick="scrollToForm()">Entrar</button>
+    <button class="btn-glow" onclick="scrollToForm()">Comenzar</button>
+  </div>
+</nav>
 
 <!-- HERO TERMINAL -->
 <section class="terminal">
-  <p class="line">● Sistema activo</p>
+  <div class="line">> Sistema activo</div>
   <h1 class="title">NEXOLEARN</h1>
-  <p class="line">Conectando personas a través del conocimiento</p>
+  <div class="line">> Conectando personas a través del conocimiento</div>
+  <p style="margin-top: 32px; color: #b0b0b0;">
+    Una red donde el conocimiento se comparte entre personas reales
+  </p>
 </section>
 
 <!-- HERO -->
 <section class="hero">
   <h2>Aprende y enseña en comunidad</h2>
-  <p>Una red donde el conocimiento se comparte entre personas reales.</p>
-  <button class="btn-glow big" onclick="scrollToForm()">Unirme</button>
+  <p style="color: #b0b0b0; margin-top: 12px; max-width: 600px; margin-left: auto; margin-right: auto;">
+    Una red donde el conocimiento se comparte entre personas reales. Sin ruido. Solo conexión.
+  </p>
 </section>
 
 <!-- ABOUT -->
 <section class="about">
-  <h2>¿Qué es NexoLearn?</h2>
-  <p>Una plataforma donde enseñar y aprender son parte del mismo proceso.</p>
-  <p>Sin ruido. Sin contenido innecesario. Solo conexión real.</p>
+  <h2 style="font-size: 2.2rem; margin-bottom: 24px; font-weight: 600; color: #ffffff;">¿Qué es NexoLearn?</h2>
+  <p>
+    Una plataforma donde enseñar y aprender son parte del mismo proceso. 
+    Conectamos personas que desean compartir conocimiento de manera genuina y significativa.
+  </p>
+  <p style="margin-top: 20px;">
+    Sin contenido innecesario. Sin ruido. Solo conexión real entre aprendices y expertos.
+  </p>
 </section>
 
-<!-- HOW -->
+<!-- HOW IT WORKS -->
 <section class="how">
   <h2>Cómo funciona</h2>
 
   <div class="grid">
     <div class="card">
-      <h3>Comparte</h3>
-      <p>Lo que sabes</p>
+      <h3>🎓 Comparte</h3>
+      <p>Enseña lo que sabes a una comunidad de aprendices interesados y motivados.</p>
     </div>
 
     <div class="card">
-      <h3>Aprende</h3>
-      <p>De otros usuarios</p>
+      <h3>📚 Aprende</h3>
+      <p>Descubre nuevas habilidades de otros usuarios expertos en diferentes campos.</p>
     </div>
 
     <div class="card">
-      <h3>Conecta</h3>
-      <p>En tiempo real</p>
+      <h3>🤝 Conecta</h3>
+      <p>Construye relaciones significativas en tiempo real con otros miembros de la comunidad.</p>
+    </div>
+
+    <div class="card">
+      <h3>⚡ Crece</h3>
+      <p>Expande tu red profesional y personal a través de conexiones auténticas.</p>
+    </div>
+
+    <div class="card">
+      <h3>🌟 Inspira</h3>
+      <p>Motiva a otros mientras desarrollas tus propias habilidades de liderazgo.</p>
+    </div>
+
+    <div class="card">
+      <h3>🚀 Transforma</h3>
+      <p>Cambia tu carrera y vida a través del aprendizaje colaborativo y continuo.</p>
     </div>
   </div>
 </section>
 
-<!--  REGISTRO -->
+<!-- AUTHENTICATION SECTION -->
 <section class="auth-section" id="formulario">
 
   <div class="auth-box">
     <h2>Activa tu cuenta</h2>
+    <p>Únete a nuestra comunidad de aprendices y expertos</p>
 
     <form id="form">
 
-      <input type="email" id="email" placeholder="Email" required>
+      <div>
+        <h3>Correo Electrónico</h3>
+        <input type="email" id="email" placeholder="tu@email.com" required>
+      </div>
 
       <div class="password-container">
-        <input type="password" id="password" placeholder="Contraseña" required>
+        <h3>Contraseña</h3>
+        <input type="password" id="password" placeholder="Crea una contraseña segura" required>
         <span class="toggle" onclick="togglePassword()">👁️</span>
       </div>
 
-      <h3>¿Qué puedes enseñar?</h3>
-      <input type="text" id="teach1" placeholder="Habilidad 1" required>
-      <input type="text" id="teach2" placeholder="Habilidad 2">
-      <input type="text" id="teach3" placeholder="Habilidad 3">
-      <input type="text" id="teach4" placeholder="Habilidad 4">
-      <input type="text" id="teach5" placeholder="Habilidad 5">
+      <div>
+        <h3>¿Qué puedes enseñar?</h3>
+        <input type="text" id="teach1" placeholder="Habilidad 1 (requerida)" required style="margin-bottom: 8px;">
+        <input type="text" id="teach2" placeholder="Habilidad 2">
+        <input type="text" id="teach3" placeholder="Habilidad 3">
+        <input type="text" id="teach4" placeholder="Habilidad 4">
+        <input type="text" id="teach5" placeholder="Habilidad 5">
+      </div>
 
-      <h3>¿Qué quieres aprender?</h3>
-      <input type="text" id="learn1" placeholder="Interés 1" required>
-      <input type="text" id="learn2" placeholder="Interés 2">
-      <input type="text" id="learn3" placeholder="Interés 3">
-      <input type="text" id="learn4" placeholder="Interés 4">
-      <input type="text" id="learn5" placeholder="Interés 5">
+      <div>
+        <h3>¿Qué quieres aprender?</h3>
+        <input type="text" id="learn1" placeholder="Interés 1 (requerido)" required style="margin-bottom: 8px;">
+        <input type="text" id="learn2" placeholder="Interés 2">
+        <input type="text" id="learn3" placeholder="Interés 3">
+        <input type="text" id="learn4" placeholder="Interés 4">
+        <input type="text" id="learn5" placeholder="Interés 5">
+      </div>
+
+      <label style="display: flex; align-items: center; margin-top: 20px; color: #b0b0b0; font-size: 0.9rem;">
+        <input type="checkbox" required style="width: 18px; height: 18px; margin-right: 10px; cursor: pointer;">
+        Acepto los Términos de Servicio y Política de Privacidad
+      </label>
 
       <button type="submit" class="btn-glow full">
         Crear cuenta
@@ -95,21 +137,32 @@
 
     </form>
 
+    <p style="margin-top: 24px; color: #b0b0b0; font-size: 0.9rem;">
+      ¿Ya tienes cuenta? <span style="color: #00ff9c; cursor: pointer; font-weight: 600;">Inicia sesión</span>
+    </p>
+
   </div>
 
 </section>
 
 <!-- CTA FINAL -->
 <section class="cta-final">
-  <h2>Empieza a conectar conocimiento</h2>
-  <button class="btn-glow big" onclick="scrollToForm()">Entrar</button>
+  <h2>Comienza a conectar conocimiento hoy</h2>
+  <p>
+    Únete a miles de aprendices y expertos que están transformando sus carreras. 
+    Tu próximo aprendizaje está a solo un clic de distancia.
+  </p>
+  <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
+    <button class="btn-glow" onclick="scrollToForm()">Comenzar Ahora</button>
+    <button class="btn-outline" onclick="scrollToForm()">Más Información</button>
+  </div>
 </section>
 
 <footer>
-  <p>● NexoLearn™ 2026</p>
+  <p>© 2026 NexoLearn. Todos los derechos reservados. Creado con precisión y elegancia.</p>
 </footer>
 
-<!-- SCRIPT -->
+<!-- SCRIPTS -->
 <script type="module">
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
@@ -118,31 +171,41 @@ const supabase = createClient(
   "sb_publishable_PuLdqxyGqq_UKWT7qNGMLQ_GYrw73Ry"
 );
 
-// SCROLL
+// SCROLL AL FORMULARIO
 window.scrollToForm = () => {
   document.getElementById("formulario").scrollIntoView({ behavior: "smooth" });
 };
 
-// VER CONTRASEÑA
+// TOGGLE CONTRASEÑA
 window.togglePassword = () => {
   const input = document.getElementById("password");
   input.type = input.type === "password" ? "text" : "password";
 };
 
-// REGISTRO
+// REGISTRO DE USUARIO
 document.getElementById("form").addEventListener("submit", async (event) => {
   event.preventDefault();
 
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
 
-  const teachInputs = [...document.querySelectorAll("input[placeholder^='Habilidad']")];
-  const learnInputs = [...document.querySelectorAll("input[placeholder^='Interés']")];
+  const teachInputs = [...document.querySelectorAll("input[id^='teach']")];
+  const learnInputs = [...document.querySelectorAll("input[id^='learn']")];
 
   const teach = teachInputs.map(i => i.value.trim()).filter(v => v);
   const learn = learnInputs.map(i => i.value.trim()).filter(v => v);
 
-  // 💾 GUARDAR LOCAL
+  if (!teach.length) {
+    alert("❌ Por favor, añade al menos una habilidad que puedas enseñar");
+    return;
+  }
+
+  if (!learn.length) {
+    alert("❌ Por favor, añade al menos un interés que desees aprender");
+    return;
+  }
+
+  // 💾 GUARDAR LOCALMENTE
   localStorage.setItem("teach", JSON.stringify(teach));
   localStorage.setItem("learn", JSON.stringify(learn));
 
@@ -154,6 +217,7 @@ document.getElementById("form").addEventListener("submit", async (event) => {
   if (error) {
     alert("❌ " + error.message);
   } else {
+    alert("✅ ¡Cuenta creada! Verifica tu email para continuar.");
     window.location.href = "/dashboard.html";
   }
 });
