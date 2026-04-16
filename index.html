@@ -2,68 +2,114 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>NexoLearn</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
-
-  <style>
-    body {
-      font-family: 'Inter', sans-serif;
-      background: #020617;
-      color: white;
-      margin: 0;
-      text-align: center;
-    }
-
-    .container {
-      max-width: 400px;
-      margin: auto;
-      padding: 40px;
-    }
-
-    input {
-      width: 100%;
-      padding: 12px;
-      margin: 8px 0;
-      border-radius: 6px;
-      border: none;
-    }
-
-    button {
-      width: 100%;
-      padding: 12px;
-      background: #22c55e;
-      border: none;
-      color: black;
-      font-weight: bold;
-      cursor: pointer;
-      margin-top: 10px;
-    }
-
-    h1 { margin-bottom: 10px; }
-    p { color: #94a3b8; }
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<div class="container">
+<!-- NAV -->
+<header class="nav">
+  <div class="logo">NEXO<span>LEARN</span></div>
+  <button class="btn-outline" onclick="scrollToForm()">Entrar</button>
+</header>
 
-  <h1>NexoLearn 🚀</h1>
-  <p>Activa tu cuenta</p>
+<!-- HERO TERMINAL -->
+<section class="terminal">
+  <p class="line">● Sistema activo</p>
+  <h1 class="title">NEXOLEARN</h1>
+  <p class="line">Conectando personas a través del conocimiento</p>
+</section>
 
-  <form id="form">
+<!-- HERO -->
+<section class="hero">
+  <h2>Aprende y enseña en comunidad</h2>
+  <p>Una red donde el conocimiento se comparte entre personas reales.</p>
+  <button class="btn-glow big" onclick="scrollToForm()">Unirme</button>
+</section>
 
-    <input type="email" id="email" placeholder="Email" required>
-    <input type="password" id="password" placeholder="Contraseña" required>
+<!-- ABOUT -->
+<section class="about">
+  <h2>¿Qué es NexoLearn?</h2>
+  <p>Una plataforma donde enseñar y aprender son parte del mismo proceso.</p>
+  <p>Sin ruido. Sin contenido innecesario. Solo conexión real.</p>
+</section>
 
-    <button type="submit">Crear cuenta</button>
+<!-- HOW -->
+<section class="how">
+  <h2>Cómo funciona</h2>
 
-  </form>
+  <div class="grid">
+    <div class="card">
+      <h3>Comparte</h3>
+      <p>Lo que sabes</p>
+    </div>
 
-</div>
+    <div class="card">
+      <h3>Aprende</h3>
+      <p>De otros usuarios</p>
+    </div>
 
+    <div class="card">
+      <h3>Conecta</h3>
+      <p>En tiempo real</p>
+    </div>
+  </div>
+</section>
+
+<!--  REGISTRO -->
+<section class="auth-section" id="formulario">
+
+  <div class="auth-box">
+    <h2>Activa tu cuenta 🚀</h2>
+
+    <form id="form">
+
+      <input type="email" id="email" placeholder="Email" required>
+
+      <div class="password-container">
+        <input type="password" id="password" placeholder="Contraseña" required>
+        <span class="toggle" onclick="togglePassword()">👁️</span>
+      </div>
+
+      <h3>¿Qué puedes enseñar?</h3>
+      <input type="text" placeholder="Habilidad 1" required>
+      <input type="text" placeholder="Habilidad 2">
+      <input type="text" placeholder="Habilidad 3">
+      <input type="text" placeholder="Habilidad 4">
+      <input type="text" placeholder="Habilidad 5">
+
+      <h3>¿Qué quieres aprender?</h3>
+      <input type="text" placeholder="Interés 1" required>
+      <input type="text" placeholder="Interés 2">
+      <input type="text" placeholder="Interés 3">
+      <input type="text" placeholder="Interés 4">
+      <input type="text" placeholder="Interés 5">
+
+      <button type="submit" class="btn-glow full">
+        Crear cuenta
+      </button>
+
+    </form>
+
+  </div>
+
+</section>
+
+<!-- CTA FINAL -->
+<section class="cta-final">
+  <h2>Empieza a conectar conocimiento</h2>
+  <button class="btn-glow big" onclick="scrollToForm()">Entrar</button>
+</section>
+
+<footer>
+  <p>● NexoLearn™ 2026</p>
+</footer>
+
+<!-- SCRIPT -->
 <script type="module">
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
@@ -72,12 +118,22 @@ const supabase = createClient(
   "sb_publishable_PuLdqxyGqq_UKWT7qNGMLQ_GYrw73Ry"
 );
 
-const form = document.getElementById("form");
+// SCROLL
+window.scrollToForm = () => {
+  document.getElementById("formulario").scrollIntoView({ behavior: "smooth" });
+};
 
-form.addEventListener("submit", async (e) => {
-  e.preventDefault();
+// VER CONTRASEÑA
+window.togglePassword = () => {
+  const input = document.getElementById("password");
+  input.type = input.type === "password" ? "text" : "password";
+};
 
-  const email = document.getElementById("email").value;
+// REGISTRO
+document.getElementById("form").addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
 
   const { error } = await supabase.auth.signUp({
