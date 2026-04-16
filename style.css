@@ -8,8 +8,9 @@
 /* BASE */
 body {
   font-family: 'Inter', sans-serif;
-  background: linear-gradient(135deg, #020617, #0f172a);
-  color: white;
+  background: #0a0a0a;
+  color: #ffffff;
+  line-height: 1.5;
 }
 
 /* NAV */
@@ -21,117 +22,190 @@ body {
 }
 
 .logo {
-  font-size: 20px;
   font-weight: 600;
+  letter-spacing: 2px;
 }
 
-/* HERO */
-.hero {
-  text-align: center;
-  padding: 80px 20px;
+.logo span {
+  color: #00ff9c;
 }
 
-.hero h2 {
-  font-size: 36px;
-  margin-bottom: 10px;
+/* BOTONES */
+.btn-glow {
+  background: #00ff9c;
+  color: black;
+  border: none;
+  padding: 12px 22px;
+  cursor: pointer;
+  transition: 0.3s;
 }
 
-.hero p {
-  color: #94a3b8;
-  margin-bottom: 25px;
+.btn-glow:hover {
+  box-shadow: 0 0 15px #00ff9c;
+  transform: translateY(-2px);
+}
+
+.btn-outline {
+  border: 1px solid #00ff9c;
+  background: transparent;
+  color: #00ff9c;
+  padding: 10px 20px;
+  cursor: pointer;
 }
 
 /* TERMINAL */
 .terminal {
   text-align: center;
-  padding: 40px;
+  padding: 80px 20px 40px;
   font-family: 'JetBrains Mono', monospace;
-  color: #22c55e;
 }
 
-.terminal h1 {
-  font-size: 40px;
-  margin: 10px 0;
+.title {
+  font-size: 3rem;
+  margin: 20px 0;
+}
+
+.line {
+  opacity: 0.7;
+}
+
+/* HERO */
+.hero {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.hero h2 {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+/* ABOUT */
+.about {
+  text-align: center;
+  padding: 60px 20px;
+  max-width: 700px;
+  margin: auto;
+}
+
+/* HOW */
+.how {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.grid {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 30px;
+}
+
+.card {
+  border: 1px solid #00ff9c33;
+  padding: 25px;
+  width: 220px;
+  background: #111;
+  transition: 0.3s;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  border-color: #00ff9c;
+}
+
+/* AUTH */
+.auth-section {
+  padding: 80px 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.auth-box {
+  background: #111;
+  padding: 40px;
+  border: 1px solid #00ff9c33;
+  width: 100%;
+  max-width: 420px;
+  text-align: center;
 }
 
 /* FORM */
-.form-section {
-  max-width: 500px;
-  margin: auto;
-  padding: 40px 20px;
-}
-
-.form-section h2 {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-.form-section h3 {
-  margin-top: 20px;
-  font-size: 16px;
-  color: #cbd5f5;
-}
-
-/* INPUTS */
-input {
+.auth-box input {
   width: 100%;
+  margin: 10px 0;
   padding: 12px;
-  margin: 8px 0;
-  border-radius: 8px;
-  border: none;
-  outline: none;
-  background: #1e293b;
+  background: #000;
+  border: 1px solid #333;
   color: white;
-  transition: 0.2s;
 }
 
-input:focus {
-  background: #334155;
+.auth-box input:focus {
+  outline: none;
+  border-color: #00ff9c;
 }
 
-/* BOTONES */
-.btn-primary {
-  background: #22c55e;
-  color: black;
-  padding: 12px 20px;
-  border: none;
-  border-radius: 8px;
-  font-weight: bold;
+/* PASSWORD */
+.password-container {
+  position: relative;
+}
+
+.toggle {
+  position: absolute;
+  right: 12px;
+  top: 12px;
   cursor: pointer;
-  transition: 0.2s;
+  opacity: 0.6;
 }
 
-.btn-primary:hover {
-  background: #16a34a;
-  transform: scale(1.05);
+.toggle:hover {
+  opacity: 1;
 }
 
-.big {
-  width: 100%;
+/* TITULOS FORM */
+.auth-box h3 {
   margin-top: 20px;
+  font-size: 14px;
+  color: #aaa;
+  text-align: left;
 }
 
-/* STATUS */
-#status {
-  margin-top: 10px;
+/* BOTON FULL */
+.full {
+  width: 100%;
+  margin-top: 15px;
+}
+
+/* CTA FINAL */
+.cta-final {
   text-align: center;
-  font-size: 14px;
+  padding: 80px 20px;
+}
+
+.cta-final h2 {
+  margin-bottom: 20px;
 }
 
 /* FOOTER */
 footer {
   text-align: center;
   padding: 30px;
-  color: #64748b;
+  opacity: 0.4;
+  font-size: 0.8rem;
 }
 
 /* RESPONSIVE */
-@media (max-width: 600px) {
-  .hero h2 {
-    font-size: 26px;
+@media (max-width: 768px) {
+  .title {
+    font-size: 2rem;
   }
 
-  .terminal h1 {
-    font-size: 30px;
+  .nav {
+    padding: 20px;
+  }
+
+  .card {
+    width: 100%;
   }
 }
