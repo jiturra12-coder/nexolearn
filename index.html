@@ -64,7 +64,7 @@
 <section class="auth-section" id="formulario">
 
   <div class="auth-box">
-    <h2>Activa tu cuenta 🚀</h2>
+    <h2>Activa tu cuenta</h2>
 
     <form id="form">
 
@@ -76,18 +76,18 @@
       </div>
 
       <h3>¿Qué puedes enseñar?</h3>
-      <input type="text" placeholder="Habilidad 1" required>
-      <input type="text" placeholder="Habilidad 2">
-      <input type="text" placeholder="Habilidad 3">
-      <input type="text" placeholder="Habilidad 4">
-      <input type="text" placeholder="Habilidad 5">
+      <input type="text" id="teach1" placeholder="Habilidad 1" required>
+      <input type="text" id="teach2" placeholder="Habilidad 2">
+      <input type="text" id="teach3" placeholder="Habilidad 3">
+      <input type="text" id="teach4" placeholder="Habilidad 4">
+      <input type="text" id="teach5" placeholder="Habilidad 5">
 
       <h3>¿Qué quieres aprender?</h3>
-      <input type="text" placeholder="Interés 1" required>
-      <input type="text" placeholder="Interés 2">
-      <input type="text" placeholder="Interés 3">
-      <input type="text" placeholder="Interés 4">
-      <input type="text" placeholder="Interés 5">
+      <input type="text" id="learn1" placeholder="Interés 1" required>
+      <input type="text" id="learn2" placeholder="Interés 2">
+      <input type="text" id="learn3" placeholder="Interés 3">
+      <input type="text" id="learn4" placeholder="Interés 4">
+      <input type="text" id="learn5" placeholder="Interés 5">
 
       <button type="submit" class="btn-glow full">
         Crear cuenta
@@ -136,6 +136,16 @@ document.getElementById("form").addEventListener("submit", async (event) => {
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
 
+  const teachInputs = [...document.querySelectorAll("input[placeholder^='Habilidad']")];
+  const learnInputs = [...document.querySelectorAll("input[placeholder^='Interés']")];
+
+  const teach = teachInputs.map(i => i.value.trim()).filter(v => v);
+  const learn = learnInputs.map(i => i.value.trim()).filter(v => v);
+
+  // 💾 GUARDAR LOCAL
+  localStorage.setItem("teach", JSON.stringify(teach));
+  localStorage.setItem("learn", JSON.stringify(learn));
+
   const { error } = await supabase.auth.signUp({
     email,
     password,
@@ -144,7 +154,7 @@ document.getElementById("form").addEventListener("submit", async (event) => {
   if (error) {
     alert("❌ " + error.message);
   } else {
-    alert("📩 Revisa tu correo para confirmar tu cuenta");
+    window.location.href = "/dashboard.html";
   }
 });
 </script>
