@@ -184,12 +184,12 @@ document.getElementById("form").addEventListener("submit", async (event) => {
   const learn = learnInputs.map(i => i.value.trim()).filter(v => v);
 
   if (!teach.length) {
-    alert("❌ Por favor, añade al menos una habilidad que puedas enseñar");
+    alert("❌ Por favor, añade al menos tres habilidades que puedas enseñar");
     return;
   }
 
   if (!learn.length) {
-    alert("❌ Por favor, añade al menos un interés que desees aprender");
+    alert("❌ Por favor, añade al menos tres intereses que desees aprender");
     return;
   }
 
