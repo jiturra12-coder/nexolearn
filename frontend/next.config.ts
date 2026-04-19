@@ -1,7 +1,5 @@
 const nextConfig = {
-  experimental: {
-    turbo: false
-  }
-};
+  // vacío o tus otras configs válidas
+}
 
-export default nextConfig;
+export default nextConfig
