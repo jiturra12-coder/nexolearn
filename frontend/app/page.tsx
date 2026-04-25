@@ -1,56 +1,83 @@
-"use client";
+'use client'
 
-import { useState } from "react";
-import { supabase } from "../lib/supabase";
-import { useRouter } from "next/navigation";
+import { useState } from 'react'
+import { supabase } from '@/lib/supabase'
 
-export default function Home() {
-  const [email, setEmail] = useState("");
-  const [loading, setLoading] = useState(false);
+export default function Login() {
 
-  const router = useRouter();
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [show, setShow] = useState(false)
 
-  const login = async () => {
-    if (!email) {
-      alert("Ingresa un email");
-      return;
-    }
-
-    setLoading(true);
-
-    const { error } = await supabase.auth.signInWithOtp({
+  async function signIn() {
+    const { error } = await supabase.auth.signInWithPassword({
       email,
-    });
-
-    setLoading(false);
+      password
+    })
 
     if (error) {
-      alert("Error: " + error.message);
+      alert(error.message)
     } else {
-      alert("Revisa tu correo para el login 🚀");
-      router.push("/dashboard");
+      window.location.href = '/dashboard'
     }
-  };
+  }
 
   return (
-    <main style={{ padding: 40 }}>
-      <h1>🚀 Nexolearn</h1>
+    <div className="login-wrapper">
 
-      <h2>Login</h2>
+      {/* LEFT BRAND */}
+      <div className="login-brand">
+        <div className="logo" />
+        <h1>Nexolearn</h1>
+        <p>Conecta. Enseña. Aprende.</p>
+        <span>Crea valor real.</span>
+      </div>
 
-      <input
-        type="email"
-        placeholder="tu@email.com"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        style={{ padding: 10, width: 250 }}
-      />
+      {/* LOGIN BOX */}
+      <div className="login-panel">
 
-      <br /><br />
+        <h2>Iniciar sesión</h2>
 
-      <button onClick={login} disabled={loading}>
-        {loading ? "Cargando..." : "Ingresar"}
-      </button>
-    </main>
-  );
+        {/* EMAIL */}
+        <div className="input-box">
+          <span className="icon">✉️</span>
+          <input
+            type="email"
+            placeholder="Ingresa tu correo electrónico"
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </div>
+
+        {/* PASSWORD */}
+        <div className="input-box">
+          <span className="icon">🔒</span>
+          <input
+            type={show ? 'text' : 'password'}
+            placeholder="Ingresa tu contraseña"
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <span className="eye" onClick={() => setShow(!show)}>
+            👁
+          </span>
+        </div>
+
+        <div className="login-options">
+          <label>
+            <input type="checkbox" /> Recordarme
+          </label>
+          <span className="link">¿Olvidaste tu contraseña?</span>
+        </div>
+
+        <button className="login-btn" onClick={signIn}>
+          Iniciar sesión
+        </button>
+
+        <p className="signup">
+          ¿Eres nuevo? <span>Crear cuenta</span>
+        </p>
+
+      </div>
+
+    </div>
+  )
 }
