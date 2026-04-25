@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
 export default function Onboarding() {
@@ -9,78 +10,116 @@ export default function Onboarding() {
   const [learn, setLearn] = useState<string[]>([])
   const [inputTeach, setInputTeach] = useState('')
   const [inputLearn, setInputLearn] = useState('')
+  const router = useRouter()
 
-  function addSkill(type: 'teach' | 'learn') {
-    if (type === 'teach' && inputTeach) {
+  // 🔒 protección: si no está logueado → login
+  useEffect(() => {
+    checkUser()
+  }, [])
+
+  async function checkUser() {
+    const { data } = await supabase.auth.getUser()
+
+    if (!data.user) {
+      router.push('/')
+    }
+  }
+
+  // ➕ agregar habilidad
+  function addTeach() {
+    if (inputTeach && teach.length < 5) {
       setTeach([...teach, inputTeach])
       setInputTeach('')
     }
-    if (type === 'learn' && inputLearn) {
+  }
+
+  function addLearn() {
+    if (inputLearn && learn.length < 5) {
       setLearn([...learn, inputLearn])
       setInputLearn('')
     }
   }
 
+  // 💾 guardar perfil
   async function saveProfile() {
-    const { data } = await supabase.auth.getUser()
 
-    await supabase.from('profiles').upsert({
-  id: data.user?.id,
-  email: data.user?.email,
-  skills: teach,
-  interests: learn
-})
+    const { data: userData } = await supabase.auth.getUser()
 
-    window.location.href = '/dashboard'
+    if (!userData.user) {
+      alert('No user')
+      return
+    }
+
+    if (teach.length === 0 || learn.length === 0) {
+      alert('Agrega al menos una habilidad en cada sección')
+      return
+    }
+
+    const { error } = await supabase.from('profiles').upsert({
+      id: userData.user.id,
+      email: userData.user.email,
+      skills: teach,
+      interests: learn
+    })
+
+    if (error) {
+      console.log(error)
+      alert('Error guardando perfil')
+      return
+    }
+
+    // 🚀 REDIRECT REAL
+    router.push('/dashboard')
   }
 
   return (
     <div className="onboarding">
 
-      <h1>Escribe todo lo que se te ocurra</h1>
+      <h1>Configura tu perfil</h1>
 
-      {/* TEACH */}
+      {/* ENSEÑAR */}
       <div className="section">
-        <h2>¿Qué puedes enseñar?</h2>
+        <h3>¿Qué puedes enseñar?</h3>
 
         <div className="input-group">
           <input
             value={inputTeach}
             onChange={(e) => setInputTeach(e.target.value)}
-            placeholder="Ej: Inglés"
+            placeholder="Ej: Guitarra"
           />
-          <button onClick={() => addSkill('teach')}>+</button>
+          <button onClick={addTeach}>Agregar</button>
         </div>
 
         <div className="chips">
-          {teach.map((s, i) => (
-            <span key={i}>{s}</span>
+          {teach.map((t, i) => (
+            <span key={i}>{t}</span>
           ))}
         </div>
       </div>
 
-      {/* LEARN */}
+      {/* APRENDER */}
       <div className="section">
-        <h2>¿Qué quieres aprender?</h2>
+        <h3>¿Qué quieres aprender?</h3>
 
         <div className="input-group">
           <input
             value={inputLearn}
             onChange={(e) => setInputLearn(e.target.value)}
-            placeholder="Ej: Programación"
+            placeholder="Ej: Inglés"
           />
-          <button onClick={() => addSkill('learn')}>+</button>
+          <button onClick={addLearn}>Agregar</button>
         </div>
 
         <div className="chips">
-          {learn.map((s, i) => (
-            <span key={i}>{s}</span>
+          {learn.map((l, i) => (
+            <span key={i}>{l}</span>
           ))}
         </div>
       </div>
 
+      {/* BOTÓN */}
       <button className="primary" onClick={saveProfile}>
-        Entrar a NexoLearn
+        Guardar y continuar
       </button>
 
     </div>
