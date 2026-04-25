@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { useState } from 'react'
 import { supabase } from '@/lib/supabase'
 
@@ -27,10 +28,20 @@ export default function Login() {
 
       {/* LEFT BRAND */}
       <div className="login-brand">
-        <div className="logo" />
+
+        <Image
+          src="/logo.png"
+          alt="Nexolearn logo"
+          width={140}
+          height={140}
+          className="logo-img"
+          priority
+        />
+
         <h1>Nexolearn</h1>
         <p>Conecta. Enseña. Aprende.</p>
         <span>Crea valor real.</span>
+
       </div>
 
       {/* LOGIN BOX */}
