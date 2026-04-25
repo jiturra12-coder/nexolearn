@@ -1,106 +1,83 @@
 'use client'
 
-import Image from 'next/image'
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
-export default function Login() {
+export default function Dashboard() {
 
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [show, setShow] = useState(false)
+  const [profile, setProfile] = useState<any>(null)
+  const router = useRouter()
 
-  // 🔥 AUTO REDIRECT SI YA ESTÁ LOGUEADO
   useEffect(() => {
-    checkSession()
+    checkUser()
   }, [])
 
-  async function checkSession() {
-    const { data } = await supabase.auth.getSession()
+  async function checkUser() {
 
-    if (data.session) {
-      window.location.href = '/dashboard'
+    const { data } = await supabase.auth.getUser()
+
+    if (!data.user) {
+      router.push('/')
+      return
     }
+
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', data.user.id)
+      .single()
+
+    if (!profile) {
+      router.push('/onboarding')
+      return
+    }
+
+    setProfile(profile)
   }
 
-  async function signIn() {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    })
-
-    if (error) {
-      alert(error.message)
-    } else {
-      window.location.href = '/dashboard'
-    }
+  if (!profile) {
+    return <div style={{ padding: 40 }}>Cargando dashboard...</div>
   }
 
   return (
-    <div className="login-wrapper">
+    <div className="container">
 
-      {/* LEFT BRAND */}
-      <div className="login-brand">
+      <aside className="sidebar">
+        <h2>NexoLearn</h2>
 
-        <Image
-          src="/logo.png"
-          alt="Nexolearn logo"
-          width={140}
-          height={140}
-          className="logo-img"
-          priority
-        />
-
-        <h1>Nexolearn</h1>
-        <p>Conecta. Enseña. Aprende.</p>
-        <span>Crea valor real.</span>
-
-      </div>
-
-      {/* LOGIN BOX */}
-      <div className="login-panel">
-
-        <h2>Iniciar sesión</h2>
-
-        {/* EMAIL */}
-        <div className="input-box">
-          <span className="icon">✉️</span>
-          <input
-            type="email"
-            placeholder="Ingresa tu correo electrónico"
-            onChange={(e) => setEmail(e.target.value)}
-          />
+        <div className="profile">
+          <div className="avatar" />
+          <p>{profile.email}</p>
+          <span>Usuario</span>
         </div>
 
-        {/* PASSWORD */}
-        <div className="input-box">
-          <span className="icon">🔒</span>
-          <input
-            type={show ? 'text' : 'password'}
-            placeholder="Ingresa tu contraseña"
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <span className="eye" onClick={() => setShow(!show)}>
-            👁
-          </span>
+        <nav>
+          <button>Inicio</button>
+          <button>Sesiones</button>
+          <button>Mensajes</button>
+          <button>Red</button>
+        </nav>
+      </aside>
+
+      <main className="main">
+        <h1>Tu Dashboard</h1>
+
+        <div className="card main-card">
+          <p><b>Enseñas:</b> {profile.skills?.join(', ')}</p>
+          <p><b>Aprendes:</b> {profile.interests?.join(', ')}</p>
         </div>
 
-        <div className="login-options">
-          <label>
-            <input type="checkbox" /> Recordarme
-          </label>
-          <span className="link">¿Olvidaste tu contraseña?</span>
+        <div className="card">
+          <p>Buscando conexión perfecta...</p>
         </div>
+      </main>
 
-        <button className="login-btn" onClick={signIn}>
-          Iniciar sesión
-        </button>
-
-        <p className="signup">
-          ¿Eres nuevo? <span>Crear cuenta</span>
-        </p>
-
-      </div>
+      <aside className="right">
+        <div className="card">
+          <p>10 Nexos</p>
+        </div>
+      </aside>
 
     </div>
   )

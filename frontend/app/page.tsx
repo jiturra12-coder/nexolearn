@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 
 export default function Login() {
@@ -9,6 +9,21 @@ export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [show, setShow] = useState(false)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    checkSession()
+  }, [])
+
+  async function checkSession() {
+    const { data } = await supabase.auth.getUser()
+
+    if (data.user) {
+      window.location.href = '/dashboard'
+    } else {
+      setLoading(false)
+    }
+  }
 
   async function signIn() {
     const { error } = await supabase.auth.signInWithPassword({
@@ -21,6 +36,11 @@ export default function Login() {
     } else {
       window.location.href = '/dashboard'
     }
+  }
+
+  // 🔥 evita pantalla pegada
+  if (loading) {
+    return <div style={{ padding: 40 }}>Cargando...</div>
   }
 
   return (
