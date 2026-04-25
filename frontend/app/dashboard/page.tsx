@@ -1,30 +1,106 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import Image from 'next/image'
+import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 
-export default function Dashboard() {
+export default function Login() {
+
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [show, setShow] = useState(false)
+
+  // 🔥 AUTO REDIRECT SI YA ESTÁ LOGUEADO
+  useEffect(() => {
+    checkSession()
+  }, [])
+
+  async function checkSession() {
+    const { data } = await supabase.auth.getSession()
+
+    if (data.session) {
+      window.location.href = '/dashboard'
+    }
+  }
+
+  async function signIn() {
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    })
+
+    if (error) {
+      alert(error.message)
+    } else {
+      window.location.href = '/dashboard'
+    }
+  }
+
   return (
-    <div className="container">
+    <div className="login-wrapper">
 
-      <aside className="sidebar">
-        <h2>NexoLearn</h2>
-        <p>Usuario</p>
-      </aside>
+      {/* LEFT BRAND */}
+      <div className="login-brand">
 
-      <main className="main">
-        <h1>Dashboard</h1>
+        <Image
+          src="/logo.png"
+          alt="Nexolearn logo"
+          width={140}
+          height={140}
+          className="logo-img"
+          priority
+        />
 
-        <div className="card">
-          <p>Contenido principal</p>
+        <h1>Nexolearn</h1>
+        <p>Conecta. Enseña. Aprende.</p>
+        <span>Crea valor real.</span>
+
+      </div>
+
+      {/* LOGIN BOX */}
+      <div className="login-panel">
+
+        <h2>Iniciar sesión</h2>
+
+        {/* EMAIL */}
+        <div className="input-box">
+          <span className="icon">✉️</span>
+          <input
+            type="email"
+            placeholder="Ingresa tu correo electrónico"
+            onChange={(e) => setEmail(e.target.value)}
+          />
         </div>
-      </main>
 
-      <aside className="right">
-        <div className="card">
-          <p>Panel derecho</p>
+        {/* PASSWORD */}
+        <div className="input-box">
+          <span className="icon">🔒</span>
+          <input
+            type={show ? 'text' : 'password'}
+            placeholder="Ingresa tu contraseña"
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <span className="eye" onClick={() => setShow(!show)}>
+            👁
+          </span>
         </div>
-      </aside>
+
+        <div className="login-options">
+          <label>
+            <input type="checkbox" /> Recordarme
+          </label>
+          <span className="link">¿Olvidaste tu contraseña?</span>
+        </div>
+
+        <button className="login-btn" onClick={signIn}>
+          Iniciar sesión
+        </button>
+
+        <p className="signup">
+          ¿Eres nuevo? <span>Crear cuenta</span>
+        </p>
+
+      </div>
 
     </div>
   )
