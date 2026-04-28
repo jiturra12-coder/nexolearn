@@ -26,8 +26,6 @@ export default function LoginPage() {
   }
 
   async function signIn() {
-    console.log('LOGIN CLICK 🚀', email)
-
     if (!email || !password) {
       alert('Completa email y contraseña')
       return
@@ -50,8 +48,6 @@ export default function LoginPage() {
   }
 
   async function signUp() {
-    console.log('SIGNUP CLICK 🚀', email)
-
     if (!email || !password) {
       alert('Completa email y contraseña')
       return
@@ -69,16 +65,31 @@ export default function LoginPage() {
       password
     })
 
-    console.log('SIGNUP RESULT:', data, error)
-
-    setBusy(false)
-
     if (error) {
+      setBusy(false)
       alert(error.message)
       return
     }
 
-    // 🔥 flujo directo sin email confirmation
+    const user = data.user
+
+    if (user) {
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .insert([
+          {
+            id: user.id,
+            email: user.email
+          }
+        ])
+
+      if (profileError) {
+        console.error(profileError)
+      }
+    }
+
+    setBusy(false)
+
     alert('Cuenta creada 🚀')
     router.replace('/onboarding')
   }
@@ -89,7 +100,6 @@ export default function LoginPage() {
 
   return (
     <div className="login-wrapper">
-      {/* LEFT */}
       <div className="login-brand">
         <Image
           src="/logo.png"
@@ -104,11 +114,9 @@ export default function LoginPage() {
         <span>Crea valor real.</span>
       </div>
 
-      {/* RIGHT */}
       <div className="login-panel">
         <h2>Iniciar sesión</h2>
 
-        {/* EMAIL */}
         <div className="input-box">
           <input
             id="email"
@@ -121,7 +129,6 @@ export default function LoginPage() {
           />
         </div>
 
-        {/* PASSWORD */}
         <div className="input-box">
           <input
             id="password"
@@ -134,7 +141,6 @@ export default function LoginPage() {
           />
         </div>
 
-        {/* LOGIN */}
         <button
           className="login-btn"
           onClick={signIn}
@@ -143,7 +149,6 @@ export default function LoginPage() {
           {busy ? 'Procesando...' : 'Iniciar sesión'}
         </button>
 
-        {/* SIGNUP */}
         <p className="signup">¿Eres nuevo?</p>
 
         <button
