@@ -2,14 +2,15 @@
 
 import Image from 'next/image'
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
-export default function Login() {
-
+export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [show, setShow] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [busy, setBusy] = useState(false)
+  const router = useRouter()
 
   useEffect(() => {
     checkSession()
@@ -17,38 +18,79 @@ export default function Login() {
 
   async function checkSession() {
     const { data } = await supabase.auth.getUser()
-
     if (data.user) {
-      window.location.href = '/dashboard'
+      router.replace('/dashboard')
     } else {
       setLoading(false)
     }
   }
 
   async function signIn() {
+    console.log('LOGIN CLICK 🚀', email)
+
+    if (!email || !password) {
+      alert('Completa email y contraseña')
+      return
+    }
+
+    setBusy(true)
+
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password
     })
 
+    setBusy(false)
+
     if (error) {
       alert(error.message)
     } else {
-      window.location.href = '/dashboard'
+      router.replace('/dashboard')
     }
   }
 
-  // 🔥 evita pantalla pegada
+  async function signUp() {
+    console.log('SIGNUP CLICK 🚀', email)
+
+    if (!email || !password) {
+      alert('Completa email y contraseña')
+      return
+    }
+
+    if (password.length < 6) {
+      alert('La contraseña debe tener al menos 6 caracteres')
+      return
+    }
+
+    setBusy(true)
+
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password
+    })
+
+    console.log('SIGNUP RESULT:', data, error)
+
+    setBusy(false)
+
+    if (error) {
+      alert(error.message)
+      return
+    }
+
+    // 🔥 flujo directo sin email confirmation
+    alert('Cuenta creada 🚀')
+    router.replace('/onboarding')
+  }
+
   if (loading) {
     return <div style={{ padding: 40 }}>Cargando...</div>
   }
 
   return (
     <div className="login-wrapper">
-
-      {/* LEFT BRAND */}
+      {/* LEFT */}
       <div className="login-brand">
-
         <Image
           src="/logo.png"
           alt="Nexolearn logo"
@@ -57,58 +99,62 @@ export default function Login() {
           className="logo-img"
           priority
         />
-
         <h1>Nexolearn</h1>
         <p>Conecta. Enseña. Aprende.</p>
         <span>Crea valor real.</span>
-
       </div>
 
-      {/* LOGIN BOX */}
+      {/* RIGHT */}
       <div className="login-panel">
-
         <h2>Iniciar sesión</h2>
 
         {/* EMAIL */}
         <div className="input-box">
-          <span className="icon">✉️</span>
           <input
+            id="email"
+            name="email"
             type="email"
-            placeholder="Ingresa tu correo electrónico"
+            placeholder="Email"
+            autoComplete="email"
+            value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
         </div>
 
         {/* PASSWORD */}
         <div className="input-box">
-          <span className="icon">🔒</span>
           <input
-            type={show ? 'text' : 'password'}
-            placeholder="Ingresa tu contraseña"
+            id="password"
+            name="password"
+            type="password"
+            placeholder="Password"
+            autoComplete="current-password"
+            value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          <span className="eye" onClick={() => setShow(!show)}>
-            👁
-          </span>
         </div>
 
-        <div className="login-options">
-          <label>
-            <input type="checkbox" /> Recordarme
-          </label>
-          <span className="link">¿Olvidaste tu contraseña?</span>
-        </div>
-
-        <button className="login-btn" onClick={signIn}>
-          Iniciar sesión
+        {/* LOGIN */}
+        <button
+          className="login-btn"
+          onClick={signIn}
+          disabled={busy}
+        >
+          {busy ? 'Procesando...' : 'Iniciar sesión'}
         </button>
 
-        <p className="signup">
-          ¿Eres nuevo? <span>Crear cuenta</span>
-        </p>
+        {/* SIGNUP */}
+        <p className="signup">¿Eres nuevo?</p>
 
+        <button
+          onClick={signUp}
+          className="login-btn"
+          style={{ marginTop: 10 }}
+          disabled={busy}
+        >
+          Crear cuenta
+        </button>
       </div>
-
     </div>
   )
 }
