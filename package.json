@@ -1,0 +1,34 @@
+{
+  "name": "nexolearn",
+  "version": "1.0.0",
+  "description": "NexoLearn: Reciprocal knowledge exchange platform",
+  "private": true,
+  "packageManager": "pnpm@9.0.0",
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "scripts": {
+    "dev": "turbo run dev --parallel",
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "test:watch": "turbo run test:watch",
+    "test:cov": "turbo run test:cov",
+    "lint": "turbo run lint",
+    "lint:fix": "turbo run lint:fix",
+    "format": "turbo run format",
+    "type-check": "turbo run type-check",
+    "clean": "turbo run clean",
+    "db:migrate": "turbo run db:migrate",
+    "db:reset": "turbo run db:reset",
+    "db:seed": "turbo run db:seed"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.6",
+    "turbo": "^1.12.4",
+    "typescript": "^5.3.3"
+  },
+  "workspaces": [
+    "apps/*"
+  ]
+}

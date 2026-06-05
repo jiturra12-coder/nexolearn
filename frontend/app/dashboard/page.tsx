@@ -5,79 +5,72 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
 export default function Dashboard() {
-
-  const [profile, setProfile] = useState<any>(null)
   const router = useRouter()
+  const [user, setUser] = useState<any>(null)
 
   useEffect(() => {
     checkUser()
   }, [])
 
   async function checkUser() {
-
     const { data } = await supabase.auth.getUser()
 
     if (!data.user) {
-      router.push('/')
-      return
+      router.replace('/login')
+    } else {
+      setUser(data.user)
     }
-
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', data.user.id)
-      .single()
-
-    if (!profile) {
-      router.push('/onboarding')
-      return
-    }
-
-    setProfile(profile)
   }
 
-  if (!profile) {
-    return <div style={{ padding: 40 }}>Cargando dashboard...</div>
+  async function signOut() {
+    await supabase.auth.signOut()
+    router.replace('/')
+  }
+
+  if (!user) {
+    return <div style={{ padding: 40 }}>Cargando...</div>
   }
 
   return (
     <div className="container">
 
-      <aside className="sidebar">
-        <h2>NexoLearn</h2>
+      {/* SIDEBAR */}
+      <div className="sidebar">
+        <h2>Nexolearn</h2>
 
         <div className="profile">
-          <div className="avatar" />
-          <p>{profile.email}</p>
-          <span>Usuario</span>
+          <p>{user.email}</p>
         </div>
 
-        <nav>
-          <button>Inicio</button>
-          <button>Sesiones</button>
-          <button>Mensajes</button>
-          <button>Red</button>
-        </nav>
-      </aside>
+        <button>Inicio</button>
+        <button>Sesiones</button>
+        <button>Mensajes</button>
+        <button>Red</button>
 
-      <main className="main">
+        {/* 🔥 LOGOUT */}
+        <button
+          onClick={signOut}
+          style={{
+            marginTop: 20,
+            border: '1px solid rgba(255,255,255,0.2)'
+          }}
+        >
+          Cerrar sesión
+        </button>
+      </div>
+
+      {/* MAIN */}
+      <div className="main">
         <h1>Tu Dashboard</h1>
+        <p>Bienvenido a Nexolearn 🚀</p>
+      </div>
 
-        <div className="card main-card">
-          <p><b>Enseñas:</b> {profile.skills?.join(', ')}</p>
-          <p><b>Aprendes:</b> {profile.interests?.join(', ')}</p>
-        </div>
-
-        <div className="card">
-          <p>Buscando conexión perfecta...</p>
-        </div>
-      </main>
-
-      <aside className="right">
+      {/* RIGHT */}
+      <div className="right">
         <div className="card">
           <p>10 Nexos</p>
         </div>
-      </aside>
+      </div>
 
     </div>
   )
