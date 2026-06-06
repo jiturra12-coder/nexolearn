@@ -7,6 +7,7 @@ import { supabase } from '@/lib/supabase'
 
 interface ProfileRow {
   email?: string
+  first_name?: string | null
   full_name?: string | null
   bio?: string | null
   skills?: string[] | null
@@ -22,10 +23,25 @@ interface DashboardStats {
 
 type JourneyStep = 'match' | 'session' | 'review'
 
-function getDisplayName(email: string, fullName?: string | null): string {
-  if (fullName?.trim()) return fullName.trim()
-  const local = email.split('@')[0]
-  return local.charAt(0).toUpperCase() + local.slice(1)
+const BLOCKED_GREETING_NAMES = new Set([
+  'admin',
+  'user',
+  'guest',
+  'student',
+  'teacher',
+  'usuario',
+  'invitado',
+])
+
+function formatFirstName(name: string): string {
+  return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase()
+}
+
+function getGreetingLine(firstName?: string | null): string {
+  const trimmed = firstName?.trim()
+  if (!trimmed) return 'Bienvenido 👋'
+  if (BLOCKED_GREETING_NAMES.has(trimmed.toLowerCase())) return 'Bienvenido 👋'
+  return `Hola, ${formatFirstName(trimmed)}`
 }
 
 function calcProfileCompletion(
@@ -89,13 +105,29 @@ export default function Dashboard() {
     const userId = authData.user.id
     setEmail(authData.user.email ?? '')
 
-    const { data: profileData } = await supabase
+    const profileFields =
+      'email, first_name, full_name, bio, skills, interests, created_at'
+    const profileFieldsLegacy = 'email, full_name, bio, skills, interests, created_at'
+
+    let profileData: ProfileRow | null = null
+    const { data, error } = await supabase
       .from('profiles')
-      .select('email, full_name, bio, skills, interests, created_at')
+      .select(profileFields)
       .eq('id', userId)
       .maybeSingle()
 
-    setProfile(profileData ?? null)
+    if (error) {
+      const { data: legacyData } = await supabase
+        .from('profiles')
+        .select(profileFieldsLegacy)
+        .eq('id', userId)
+        .maybeSingle()
+      profileData = legacyData ?? null
+    } else {
+      profileData = data ?? null
+    }
+
+    setProfile(profileData)
 
     let matchCount = 0
     const { count } = await supabase
@@ -126,7 +158,7 @@ export default function Dashboard() {
 
   const teachSkills = profile?.skills?.filter(Boolean) ?? []
   const learnGoals = profile?.interests?.filter(Boolean) ?? []
-  const displayName = getDisplayName(email, profile?.full_name)
+  const greetingLine = getGreetingLine(profile?.first_name)
   const journeyStep = getActiveJourneyStep(stats)
 
   const nextAction = useMemo(() => {
@@ -209,7 +241,38 @@ export default function Dashboard() {
       <main className="dash-main">
         <section className="dash-intro card">
           <p className="dash-eyebrow">Tu espacio de intercambio</p>
-          <h1>Hola, {displayName}</h1>
+          <div className="dash-greeting-row">
+            <h1>{greetingLine}</h1>
+            <span className="dash-greeting-pct" aria-label={`Perfil ${completion.percent}% completo`}>
+              {completion.percent}%
+            </span>
+          </div>
+          <div className="dash-intro-profile">
+            <div className="dash-intro-skill-group">
+              <p className="dash-intro-label">Enseño</p>
+              {teachSkills.length > 0 ? (
+                <div className="chips dash-intro-chips">
+                  {teachSkills.map((skill) => (
+                    <span key={skill}>{skill}</span>
+                  ))}
+                </div>
+              ) : (
+                <p className="dash-intro-empty">Aún no agregaste habilidades</p>
+              )}
+            </div>
+            <div className="dash-intro-skill-group">
+              <p className="dash-intro-label">Aprendo</p>
+              {learnGoals.length > 0 ? (
+                <div className="chips dash-intro-chips">
+                  {learnGoals.map((goal) => (
+                    <span key={goal}>{goal}</span>
+                  ))}
+                </div>
+              ) : (
+                <p className="dash-intro-empty">Aún no definiste objetivos</p>
+              )}
+            </div>
+          </div>
           <p className="dash-lead">
             <strong>NexoLearn</strong> conecta personas que quieren{' '}
             <strong>enseñar</strong> y <strong>aprender</strong> en sesiones

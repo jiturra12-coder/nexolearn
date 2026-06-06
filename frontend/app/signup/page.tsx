@@ -4,6 +4,10 @@ import Link from 'next/link'
 import { useState, useEffect, type FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import { PasswordInput } from '@/components/auth/PasswordInput'
+import { AuthNotice } from '@/components/auth/AuthNotice'
+import { ActivationProgress } from '@/components/auth/ActivationProgress'
+import { translateAuthError } from '@/lib/auth-messages'
 
 export default function SignupPage() {
   const [email, setEmail] = useState('')
@@ -19,7 +23,7 @@ export default function SignupPage() {
 
   async function checkSession() {
     const { data } = await supabase.auth.getUser()
-    if (data.user) {
+    if (data.user?.email_confirmed_at) {
       router.replace('/dashboard')
     } else {
       setLoading(false)
@@ -31,12 +35,12 @@ export default function SignupPage() {
     setError('')
 
     if (!email || !password) {
-      setError('Enter your email and password.')
+      setError('Ingresa tu correo electrónico y contraseña.')
       return
     }
 
     if (password.length < 8) {
-      setError('Password must be at least 8 characters.')
+      setError('La contraseña debe tener al menos 8 caracteres.')
       return
     }
 
@@ -49,7 +53,7 @@ export default function SignupPage() {
 
     if (signUpError) {
       setBusy(false)
-      setError(signUpError.message)
+      setError(translateAuthError(signUpError.message))
       return
     }
 
@@ -65,20 +69,22 @@ export default function SignupPage() {
 
       if (profileError) {
         console.error(profileError)
-        setBusy(false)
-        setError('Account created but profile setup failed. Try signing in.')
-        return
       }
     }
 
     setBusy(false)
-    router.replace('/onboarding')
+
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('nexolearn_pending_email', email)
+    }
+
+    router.push(`/confirm-email?email=${encodeURIComponent(email)}`)
   }
 
   if (loading) {
     return (
       <div className="auth-loading">
-        <p>Loading...</p>
+        <p>Cargando…</p>
       </div>
     )
   }
@@ -87,39 +93,47 @@ export default function SignupPage() {
     <div className="signup-wrapper">
       <header className="signup-header">
         <p className="signup-eyebrow">NexoLearn</p>
-        <h1>Create your NexoLearn account.</h1>
-        <ul className="signup-pillars" aria-label="What you can do on NexoLearn">
+        <h1>Crea tu cuenta en NexoLearn.</h1>
+        <ul className="signup-pillars" aria-label="Qué puedes hacer en NexoLearn">
           <li>
-            <span className="pillar-label">Learn.</span>
-            <span className="pillar-detail">Set goals and find peers who can help.</span>
+            <span className="pillar-label">Aprender.</span>
+            <span className="pillar-detail">
+              Define objetivos y encuentra personas que puedan ayudarte.
+            </span>
           </li>
           <li>
-            <span className="pillar-label">Teach.</span>
-            <span className="pillar-detail">Share what you know in reciprocal sessions.</span>
+            <span className="pillar-label">Enseñar.</span>
+            <span className="pillar-detail">
+              Comparte lo que sabes en sesiones de intercambio.
+            </span>
           </li>
           <li>
-            <span className="pillar-label">Build your reputation.</span>
-            <span className="pillar-detail">Earn trust through real exchanges and reviews.</span>
+            <span className="pillar-label">Construir reputación.</span>
+            <span className="pillar-detail">
+              Gana confianza con intercambios reales y reseñas.
+            </span>
           </li>
         </ul>
       </header>
 
       <div className="signup-panel">
-        <h2>Get started</h2>
+        <ActivationProgress currentStep={1} />
+
+        <h2>Comenzar</h2>
         <p className="auth-subcopy signup-subcopy">
-          Next you will add skills you teach and topics you want to learn.
+          Después confirmarás tu correo y completarás tu perfil.
         </p>
 
         <form onSubmit={handleSubmit}>
           <label className="field-label" htmlFor="signup-email">
-            Email
+            Correo electrónico
           </label>
           <div className="input-box signup-input">
             <input
               id="signup-email"
               name="email"
               type="email"
-              placeholder="you@example.com"
+              placeholder="tu@correo.com"
               autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -127,31 +141,29 @@ export default function SignupPage() {
           </div>
 
           <label className="field-label" htmlFor="signup-password">
-            Password
+            Contraseña
           </label>
-          <div className="input-box signup-input">
-            <input
-              id="signup-password"
-              name="password"
-              type="password"
-              placeholder="At least 8 characters"
-              autoComplete="new-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </div>
+          <PasswordInput
+            id="signup-password"
+            name="password"
+            placeholder="Mínimo 8 caracteres"
+            autoComplete="new-password"
+            value={password}
+            onChange={setPassword}
+            boxClassName="signup-input"
+          />
 
-          {error ? <p className="auth-error">{error}</p> : null}
+          <AuthNotice variant="error" message={error} />
 
           <button className="signup-btn" type="submit" disabled={busy}>
-            {busy ? 'Creating account...' : 'Create account'}
+            {busy ? 'Creando cuenta…' : 'Crear cuenta'}
           </button>
         </form>
 
         <p className="auth-switch">
-          Already have an account?{' '}
+          ¿Ya tienes cuenta?{' '}
           <Link href="/login" className="auth-link">
-            Sign in
+            Inicia sesión
           </Link>
         </p>
       </div>

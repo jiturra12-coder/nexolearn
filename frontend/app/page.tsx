@@ -21,7 +21,7 @@ export default function HomePage() {
 
   return (
     <div className="auth-loading">
-      <p>Loading...</p>
+      <p>Cargando…</p>
     </div>
   )
 }

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import { ActivationProgress } from '@/components/auth/ActivationProgress'
 
 export default function Onboarding() {
 
@@ -22,6 +23,13 @@ export default function Onboarding() {
 
     if (!data.user) {
       router.push('/login')
+      return
+    }
+
+    if (!data.user.email_confirmed_at) {
+      router.push(
+        `/confirm-email?email=${encodeURIComponent(data.user.email ?? '')}`,
+      )
     }
   }
 
@@ -74,6 +82,8 @@ export default function Onboarding() {
 
   return (
     <div className="onboarding">
+
+      <ActivationProgress currentStep={3} />
 
       <h1>Configura tu perfil</h1>
 

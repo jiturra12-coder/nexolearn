@@ -4,6 +4,9 @@ import Link from 'next/link'
 import { useState, useEffect, type FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import { PasswordInput } from '@/components/auth/PasswordInput'
+import { AuthNotice } from '@/components/auth/AuthNotice'
+import { translateAuthError } from '@/lib/auth-messages'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -11,15 +14,23 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(true)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
   const router = useRouter()
 
   useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      if (params.get('reset') === 'success') {
+        setSuccess('Tu contraseña se actualizó correctamente. Inicia sesión.')
+        window.history.replaceState({}, '', '/login')
+      }
+    }
     checkSession()
   }, [])
 
   async function checkSession() {
     const { data } = await supabase.auth.getUser()
-    if (data.user) {
+    if (data.user?.email_confirmed_at) {
       router.replace('/dashboard')
     } else {
       setLoading(false)
@@ -31,13 +42,13 @@ export default function LoginPage() {
     setError('')
 
     if (!email || !password) {
-      setError('Enter your email and password.')
+      setError('Ingresa tu correo electrónico y contraseña.')
       return
     }
 
     setBusy(true)
 
-    const { error: signInError } = await supabase.auth.signInWithPassword({
+    const { data, error: signInError } = await supabase.auth.signInWithPassword({
       email,
       password,
     })
@@ -45,16 +56,28 @@ export default function LoginPage() {
     setBusy(false)
 
     if (signInError) {
-      setError(signInError.message)
-    } else {
-      router.replace('/dashboard')
+      const msg = translateAuthError(signInError.message)
+      if (msg.includes('Confirma tu correo')) {
+        router.push(`/confirm-email?email=${encodeURIComponent(email)}`)
+        return
+      }
+      setError(msg)
+      return
     }
+
+    if (data.user && !data.user.email_confirmed_at) {
+      await supabase.auth.signOut()
+      router.push(`/confirm-email?email=${encodeURIComponent(email)}`)
+      return
+    }
+
+    router.replace('/dashboard')
   }
 
   if (loading) {
     return (
       <div className="auth-loading">
-        <p>Loading...</p>
+        <p>Cargando…</p>
       </div>
     )
   }
@@ -64,26 +87,26 @@ export default function LoginPage() {
       <div className="login-brand">
         <div className="logo" aria-hidden="true" />
         <h1>NexoLearn</h1>
-        <p>Welcome back.</p>
-        <span>Continue your exchange journey.</span>
+        <p>Bienvenido de nuevo.</p>
+        <span>Continúa tu camino de intercambio de conocimiento.</span>
       </div>
 
       <div className="login-panel">
-        <h2>Sign in to your account</h2>
+        <h2>Inicia sesión en tu cuenta</h2>
         <p className="auth-subcopy">
-          Access your matches, sessions, and progress.
+          Accede a tus conexiones, sesiones y progreso.
         </p>
 
         <form onSubmit={handleSubmit}>
           <label className="field-label" htmlFor="login-email">
-            Email
+            Correo electrónico
           </label>
           <div className="input-box">
             <input
               id="login-email"
               name="email"
               type="email"
-              placeholder="you@example.com"
+              placeholder="tu@correo.com"
               autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -91,31 +114,35 @@ export default function LoginPage() {
           </div>
 
           <label className="field-label" htmlFor="login-password">
-            Password
+            Contraseña
           </label>
-          <div className="input-box">
-            <input
-              id="login-password"
-              name="password"
-              type="password"
-              placeholder="Your password"
-              autoComplete="current-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </div>
+          <PasswordInput
+            id="login-password"
+            name="password"
+            placeholder="Tu contraseña"
+            autoComplete="current-password"
+            value={password}
+            onChange={setPassword}
+          />
 
-          {error ? <p className="auth-error">{error}</p> : null}
+          <p className="auth-forgot-row">
+            <Link href="/forgot-password" className="auth-link">
+              ¿Olvidaste tu contraseña?
+            </Link>
+          </p>
+
+          <AuthNotice variant="success" message={success} />
+          <AuthNotice variant="error" message={error} />
 
           <button className="login-btn" type="submit" disabled={busy}>
-            {busy ? 'Signing in...' : 'Sign in'}
+            {busy ? 'Iniciando sesión…' : 'Iniciar sesión'}
           </button>
         </form>
 
         <p className="auth-switch">
-          New to NexoLearn?{' '}
+          ¿Nuevo en NexoLearn?{' '}
           <Link href="/signup" className="auth-link">
-            Create your account
+            Crea tu cuenta
           </Link>
         </p>
       </div>
