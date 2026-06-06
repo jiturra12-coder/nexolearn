@@ -3,6 +3,8 @@
 import Link from 'next/link'
 import { useState, useEffect, type FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
+import { isDuplicateSignupUser } from '@/lib/auth-email'
+import { getEmailConfirmationRedirectUrl } from '@/lib/auth-redirect'
 import { getLocalUser, withAuthRateLimitRetry } from '@/lib/auth-session'
 import { supabase } from '@/lib/supabase'
 import { PasswordInput } from '@/components/auth/PasswordInput'
@@ -30,7 +32,9 @@ export default function SignupPage() {
     if (typeof window !== 'undefined') {
       sessionStorage.setItem('nexolearn_pending_email', emailValue)
     }
-    router.push(`/confirm-email?email=${encodeURIComponent(emailValue)}`)
+    router.push(
+      `/confirm-email?email=${encodeURIComponent(emailValue)}&send=1`,
+    )
   }
 
   async function checkSession() {
@@ -62,10 +66,7 @@ export default function SignupPage() {
 
     setBusy(true)
 
-    const emailRedirectTo =
-      typeof window !== 'undefined'
-        ? `${window.location.origin}/dashboard`
-        : undefined
+    const emailRedirectTo = getEmailConfirmationRedirectUrl()
 
     const { data, error: signUpError } = await withAuthRateLimitRetry(() =>
       supabase.auth.signUp({
@@ -81,6 +82,7 @@ export default function SignupPage() {
         isAuthRateLimited(signUpError.message) ||
         isExistingAccountError(signUpError.message)
       ) {
+        setBusy(false)
         goToConfirmEmail(email)
         return
       }
@@ -89,8 +91,9 @@ export default function SignupPage() {
     }
 
     const user = data.user
+    const duplicateSignup = isDuplicateSignupUser(user)
 
-    if (user) {
+    if (user && !duplicateSignup) {
       const { error: profileError } = await supabase.from('profiles').insert([
         {
           id: user.id,

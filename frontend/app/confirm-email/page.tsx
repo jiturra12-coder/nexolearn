@@ -1,11 +1,11 @@
 'use client'
 
 import Link from 'next/link'
-import { useState, useEffect, Suspense } from 'react'
+import { useState, useEffect, useRef, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { getLocalUser, withAuthRateLimitRetry } from '@/lib/auth-session'
+import { sendConfirmationEmail } from '@/lib/auth-email'
+import { getLocalUser } from '@/lib/auth-session'
 import { supabase } from '@/lib/supabase'
-import { isAuthRateLimited } from '@/lib/auth-messages'
 import { AuthNotice } from '@/components/auth/AuthNotice'
 import { ActivationProgress } from '@/components/auth/ActivationProgress'
 import { getWebmailUrl } from '@/lib/auth-messages'
@@ -18,6 +18,7 @@ function ConfirmEmailContent() {
   const [success, setSuccess] = useState('')
   const [error, setError] = useState('')
   const [checking, setChecking] = useState(true)
+  const autoSendStarted = useRef(false)
 
   useEffect(() => {
     const fromQuery = searchParams.get('email')
@@ -79,44 +80,59 @@ function ConfirmEmailContent() {
     }
   }, [checking, router, searchParams])
 
-  async function handleResend() {
-    setSuccess('')
-    setError('')
+  useEffect(() => {
+    const shouldAutoSend = searchParams.get('send') === '1'
+    if (!shouldAutoSend || !email || checking || autoSendStarted.current) return
 
+    autoSendStarted.current = true
+    void deliverConfirmationEmail(email, 'auto')
+  }, [checking, email, searchParams])
+
+  function getSuccessMessage(channel: 'resend' | 'server') {
+    if (channel === 'server') {
+      return 'Correo de confirmación enviado correctamente.'
+    }
+
+    return 'Solicitud registrada. Si no llega en unos minutos, revisa spam o usa Reenviar.'
+  }
+
+  async function deliverConfirmationEmail(
+    emailValue: string,
+    mode: 'auto' | 'manual',
+  ) {
+    if (mode === 'manual') {
+      setSuccess('')
+      setError('')
+    }
+
+    setBusy(true)
+    const result = await sendConfirmationEmail(emailValue)
+    setBusy(false)
+
+    if (!result.ok) {
+      setError(result.message)
+      return
+    }
+
+    setSuccess(getSuccessMessage(result.channel))
+
+    if (typeof window !== 'undefined' && mode === 'auto') {
+      const params = new URLSearchParams(window.location.search)
+      params.delete('send')
+      const nextUrl = params.toString()
+        ? `/confirm-email?${params.toString()}`
+        : '/confirm-email'
+      window.history.replaceState({}, '', nextUrl)
+    }
+  }
+
+  async function handleResend() {
     if (!email) {
       setError('No encontramos tu correo. Regístrate de nuevo.')
       return
     }
 
-    setBusy(true)
-
-    const redirectTo =
-      typeof window !== 'undefined'
-        ? `${window.location.origin}/dashboard`
-        : undefined
-
-    const { error: resendError } = await withAuthRateLimitRetry(() =>
-      supabase.auth.resend({
-        type: 'signup',
-        email,
-        options: redirectTo ? { emailRedirectTo: redirectTo } : undefined,
-      }),
-    )
-
-    setBusy(false)
-
-    if (resendError) {
-      if (isAuthRateLimited(resendError.message)) {
-        setError(
-          'Supabase limita el envío de correos. Espera unos minutos antes de reenviar.',
-        )
-      } else {
-        setError('No pudimos enviar el correo de confirmación. Inténtalo nuevamente.')
-      }
-      return
-    }
-
-    setSuccess('Correo de confirmación enviado correctamente.')
+    await deliverConfirmationEmail(email, 'manual')
   }
 
   function handleOpenEmail() {
@@ -169,11 +185,11 @@ function ConfirmEmailContent() {
 
         <h2>Revisa tu correo electrónico</h2>
         <p className="auth-subcopy confirm-email-message">
-          Hemos enviado un enlace de confirmación a tu correo electrónico.
-          <br />
-          <br />
-          Haz clic en el enlace para activar tu cuenta y comenzar a utilizar
-          NexoLearn.
+          {busy
+            ? 'Estamos enviando el enlace de confirmación a tu correo electrónico…'
+            : success
+              ? 'Revisa tu bandeja de entrada y haz clic en el enlace para activar tu cuenta.'
+              : 'Te enviaremos un enlace de confirmación para activar tu cuenta en NexoLearn.'}
         </p>
 
         {email ? (

@@ -37,6 +37,12 @@ export function translateAuthError(message: string): string {
   if (normalized.includes('unable to validate email address')) {
     return 'El formato del correo electrónico no es válido.'
   }
+  if (
+    normalized.includes('email address not authorized') ||
+    normalized.includes('not authorized')
+  ) {
+    return 'Este correo no puede recibir mensajes con el SMTP por defecto de Supabase. Configura SMTP personalizado o Resend en el servidor.'
+  }
 
   return message
 }
