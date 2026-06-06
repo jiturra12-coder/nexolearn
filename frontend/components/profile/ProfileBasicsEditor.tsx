@@ -52,17 +52,35 @@ export const ProfileBasicsEditor = forwardRef<
     setUserId(authData.user.id)
     setEmail(authData.user.email ?? '')
 
-    const fields = 'full_name, first_name, avatar_url'
+    let profileData: {
+      full_name?: string | null
+      first_name?: string | null
+      avatar_url?: string | null
+    } | null = null
+
     const { data, error: fetchError } = await supabase
       .from('profiles')
-      .select(fields)
+      .select('full_name, first_name, avatar_url')
       .eq('id', authData.user.id)
       .maybeSingle()
 
     if (!fetchError && data) {
-      setFullName(data.full_name?.trim() || data.first_name?.trim() || '')
-      setAvatarUrl(data.avatar_url ?? null)
-      setPreviewUrl(data.avatar_url ?? null)
+      profileData = data
+    } else {
+      const { data: legacyData } = await supabase
+        .from('profiles')
+        .select('full_name, avatar_url')
+        .eq('id', authData.user.id)
+        .maybeSingle()
+      profileData = legacyData
+    }
+
+    if (profileData) {
+      setFullName(
+        profileData.full_name?.trim() || profileData.first_name?.trim() || '',
+      )
+      setAvatarUrl(profileData.avatar_url ?? null)
+      setPreviewUrl(profileData.avatar_url ?? null)
     }
 
     setLoading(false)
@@ -108,7 +126,7 @@ export const ProfileBasicsEditor = forwardRef<
       userId,
       email,
       fullName,
-      avatarUrl: nextAvatarUrl,
+      ...(nextAvatarUrl ? { avatarUrl: nextAvatarUrl } : {}),
     })
 
     setBusy(false)

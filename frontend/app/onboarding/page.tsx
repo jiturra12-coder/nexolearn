@@ -33,12 +33,11 @@ export default function Onboarding() {
     }
   }
 
-  async function handleComplete() {
+  async function handleComplete(): Promise<boolean> {
     const profileSaved = await profileRef.current?.save()
-    if (!profileSaved) {
-      throw new Error('No se pudo guardar el perfil.')
-    }
+    if (!profileSaved) return false
     router.push('/dashboard')
+    return true
   }
 
   return (

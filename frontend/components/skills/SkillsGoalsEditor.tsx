@@ -27,7 +27,7 @@ import {
 import { SkillChip } from './SkillChip'
 
 interface SkillsGoalsEditorProps {
-  onComplete?: () => void | Promise<void>
+  onComplete?: () => void | boolean | Promise<void | boolean>
   showContinueButton?: boolean
   continueLabel?: string
 }
@@ -224,14 +224,17 @@ export function SkillsGoalsEditor({
     }
 
     setBusyContinue(true)
-    try {
-      await onComplete?.()
-      setContinueSuccess('Perfil guardado correctamente.')
-    } catch {
-      setContinueError('No se pudo guardar el perfil. Revisa los datos.')
-    } finally {
-      setBusyContinue(false)
+    const completed = await onComplete?.()
+    setBusyContinue(false)
+
+    if (completed === false) {
+      setContinueError(
+        'Revisa la sección «Tu perfil» arriba: nombre obligatorio y foto válida.',
+      )
+      return
     }
+
+    setContinueSuccess('Perfil guardado correctamente.')
   }
 
   if (loading) {
