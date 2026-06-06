@@ -1,3 +1,24 @@
+export function isAuthRateLimited(message: string): boolean {
+  const normalized = message.toLowerCase()
+  return (
+    normalized.includes('rate limit') ||
+    normalized.includes('over_request_rate_limit') ||
+    normalized.includes('too many requests') ||
+    normalized.includes('for security purposes') ||
+    normalized.includes('email rate limit') ||
+    normalized.includes('demasiados intentos')
+  )
+}
+
+export function isExistingAccountError(message: string): boolean {
+  const normalized = message.toLowerCase()
+  return (
+    normalized.includes('user already registered') ||
+    normalized.includes('already registered') ||
+    normalized.includes('already been registered')
+  )
+}
+
 export function translateAuthError(message: string): string {
   const normalized = message.toLowerCase()
 
@@ -15,9 +36,6 @@ export function translateAuthError(message: string): string {
   }
   if (normalized.includes('unable to validate email address')) {
     return 'El formato del correo electrónico no es válido.'
-  }
-  if (normalized.includes('rate limit')) {
-    return 'Demasiados intentos. Espera un momento e inténtalo de nuevo.'
   }
 
   return message

@@ -3,11 +3,16 @@
 import Link from 'next/link'
 import { useState, useEffect, type FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
+import { getLocalUser, withAuthRateLimitRetry } from '@/lib/auth-session'
 import { supabase } from '@/lib/supabase'
 import { PasswordInput } from '@/components/auth/PasswordInput'
 import { AuthNotice } from '@/components/auth/AuthNotice'
 import { ActivationProgress } from '@/components/auth/ActivationProgress'
-import { translateAuthError } from '@/lib/auth-messages'
+import {
+  isAuthRateLimited,
+  isExistingAccountError,
+  translateAuthError,
+} from '@/lib/auth-messages'
 
 export default function SignupPage() {
   const [email, setEmail] = useState('')
@@ -21,13 +26,24 @@ export default function SignupPage() {
     checkSession()
   }, [])
 
-  async function checkSession() {
-    const { data } = await supabase.auth.getUser()
-    if (data.user?.email_confirmed_at) {
-      router.replace('/dashboard')
-    } else {
-      setLoading(false)
+  function goToConfirmEmail(emailValue: string) {
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('nexolearn_pending_email', emailValue)
     }
+    router.push(`/confirm-email?email=${encodeURIComponent(emailValue)}`)
+  }
+
+  async function checkSession() {
+    const user = await getLocalUser()
+    if (!user) {
+      setLoading(false)
+      return
+    }
+    if (user.email_confirmed_at) {
+      router.replace('/dashboard')
+      return
+    }
+    goToConfirmEmail(user.email ?? '')
   }
 
   async function handleSubmit(e: FormEvent) {
@@ -46,13 +62,28 @@ export default function SignupPage() {
 
     setBusy(true)
 
-    const { data, error: signUpError } = await supabase.auth.signUp({
-      email,
-      password,
-    })
+    const emailRedirectTo =
+      typeof window !== 'undefined'
+        ? `${window.location.origin}/dashboard`
+        : undefined
+
+    const { data, error: signUpError } = await withAuthRateLimitRetry(() =>
+      supabase.auth.signUp({
+        email,
+        password,
+        options: emailRedirectTo ? { emailRedirectTo } : undefined,
+      }),
+    )
 
     if (signUpError) {
       setBusy(false)
+      if (
+        isAuthRateLimited(signUpError.message) ||
+        isExistingAccountError(signUpError.message)
+      ) {
+        goToConfirmEmail(email)
+        return
+      }
       setError(translateAuthError(signUpError.message))
       return
     }
@@ -73,12 +104,7 @@ export default function SignupPage() {
     }
 
     setBusy(false)
-
-    if (typeof window !== 'undefined') {
-      sessionStorage.setItem('nexolearn_pending_email', email)
-    }
-
-    router.push(`/confirm-email?email=${encodeURIComponent(email)}`)
+    goToConfirmEmail(email)
   }
 
   if (loading) {

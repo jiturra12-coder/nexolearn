@@ -3,7 +3,9 @@
 import Link from 'next/link'
 import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { getLocalUser, withAuthRateLimitRetry } from '@/lib/auth-session'
 import { supabase } from '@/lib/supabase'
+import { isAuthRateLimited } from '@/lib/auth-messages'
 import { AuthNotice } from '@/components/auth/AuthNotice'
 import { ActivationProgress } from '@/components/auth/ActivationProgress'
 import { getWebmailUrl } from '@/lib/auth-messages'
@@ -34,17 +36,48 @@ function ConfirmEmailContent() {
   }, [searchParams])
 
   useEffect(() => {
-    async function checkConfirmed() {
-      const { data } = await supabase.auth.getUser()
-      if (data.user?.email_confirmed_at) {
-        router.replace('/onboarding')
+    let cancelled = false
+
+    async function completeIfConfirmed() {
+      const code = searchParams.get('code')
+
+      if (code) {
+        const { error: exchangeError } =
+          await supabase.auth.exchangeCodeForSession(code)
+        if (cancelled) return
+        if (exchangeError) {
+          setError('El enlace no es válido o ha expirado. Solicita uno nuevo.')
+          return
+        }
+        router.replace('/dashboard')
+        return
+      }
+
+      const user = await getLocalUser()
+      if (!cancelled && user?.email_confirmed_at) {
+        router.replace('/dashboard')
       }
     }
 
     if (!checking) {
-      checkConfirmed()
+      completeIfConfirmed()
     }
-  }, [checking, router])
+
+    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (cancelled) return
+      if (
+        (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') &&
+        session?.user?.email_confirmed_at
+      ) {
+        router.replace('/dashboard')
+      }
+    })
+
+    return () => {
+      cancelled = true
+      listener.subscription.unsubscribe()
+    }
+  }, [checking, router, searchParams])
 
   async function handleResend() {
     setSuccess('')
@@ -57,15 +90,29 @@ function ConfirmEmailContent() {
 
     setBusy(true)
 
-    const { error: resendError } = await supabase.auth.resend({
-      type: 'signup',
-      email,
-    })
+    const redirectTo =
+      typeof window !== 'undefined'
+        ? `${window.location.origin}/dashboard`
+        : undefined
+
+    const { error: resendError } = await withAuthRateLimitRetry(() =>
+      supabase.auth.resend({
+        type: 'signup',
+        email,
+        options: redirectTo ? { emailRedirectTo: redirectTo } : undefined,
+      }),
+    )
 
     setBusy(false)
 
     if (resendError) {
-      setError('No pudimos enviar el correo de confirmación. Inténtalo nuevamente.')
+      if (isAuthRateLimited(resendError.message)) {
+        setError(
+          'Supabase limita el envío de correos. Espera unos minutos antes de reenviar.',
+        )
+      } else {
+        setError('No pudimos enviar el correo de confirmación. Inténtalo nuevamente.')
+      }
       return
     }
 

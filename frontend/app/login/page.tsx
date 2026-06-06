@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { PasswordInput } from '@/components/auth/PasswordInput'
 import { AuthNotice } from '@/components/auth/AuthNotice'
+import { getLocalUser, withAuthRateLimitRetry } from '@/lib/auth-session'
 import { translateAuthError } from '@/lib/auth-messages'
 
 export default function LoginPage() {
@@ -29,8 +30,8 @@ export default function LoginPage() {
   }, [])
 
   async function checkSession() {
-    const { data } = await supabase.auth.getUser()
-    if (data.user?.email_confirmed_at) {
+    const user = await getLocalUser()
+    if (user?.email_confirmed_at) {
       router.replace('/dashboard')
     } else {
       setLoading(false)
@@ -48,10 +49,9 @@ export default function LoginPage() {
 
     setBusy(true)
 
-    const { data, error: signInError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
+    const { data, error: signInError } = await withAuthRateLimitRetry(() =>
+      supabase.auth.signInWithPassword({ email, password }),
+    )
 
     setBusy(false)
 

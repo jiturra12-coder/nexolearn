@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useEffect, useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
+import { getLocalUser } from '@/lib/auth-session'
 import { supabase } from '@/lib/supabase'
 import {
   fetchLearnGoals,
@@ -49,10 +50,7 @@ function calcProfileCompletion(
   if (learnCount > 0) percent += 25
   else missing.push('Al menos un objetivo de aprendizaje')
 
-  if (profile?.bio?.trim() && profile.bio.trim().length >= 20) percent += 10
-  else missing.push('Biografía breve (opcional)')
-
-  percent += 10
+  percent += 20
 
   const readyToMatch = hasAccount && teachCount > 0 && learnCount > 0
 
@@ -76,7 +74,16 @@ export default function Dashboard() {
   const [menuOpen, setMenuOpen] = useState(false)
 
   useEffect(() => {
-    loadDashboard()
+    async function init() {
+      const code = new URLSearchParams(window.location.search).get('code')
+      if (code) {
+        await supabase.auth.exchangeCodeForSession(code)
+        window.history.replaceState({}, '', '/dashboard')
+      }
+      loadDashboard()
+    }
+
+    init()
 
     function onVisible() {
       if (document.visibilityState === 'visible') loadDashboard()
@@ -88,25 +95,23 @@ export default function Dashboard() {
 
     document.addEventListener('visibilitychange', onVisible)
     window.addEventListener('nexolearn:profile-updated', onProfileUpdated)
-    window.addEventListener('focus', onProfileUpdated)
 
     return () => {
       document.removeEventListener('visibilitychange', onVisible)
       window.removeEventListener('nexolearn:profile-updated', onProfileUpdated)
-      window.removeEventListener('focus', onProfileUpdated)
     }
   }, [])
 
   async function loadDashboard() {
-    const { data: authData } = await supabase.auth.getUser()
+    const user = await getLocalUser()
 
-    if (!authData.user) {
+    if (!user) {
       router.replace('/login')
       return
     }
 
-    const userId = authData.user.id
-    setEmail(authData.user.email ?? '')
+    const userId = user.id
+    setEmail(user.email ?? '')
 
     const profileData = await fetchUserProfile(userId)
     setProfile(profileData)
