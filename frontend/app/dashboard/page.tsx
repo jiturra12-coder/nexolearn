@@ -4,14 +4,18 @@ import Link from 'next/link'
 import { useEffect, useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import {
+  fetchLearnGoals,
+  fetchTeachSkills,
+} from '@/lib/api/skills-client'
+import type { LearnGoalItem, TeachSkillItem } from '@/lib/skills-types'
+import { SkillChip } from '@/components/skills/SkillChip'
 
 interface ProfileRow {
   email?: string
   first_name?: string | null
   full_name?: string | null
   bio?: string | null
-  skills?: string[] | null
-  interests?: string[] | null
   created_at?: string
 }
 
@@ -47,6 +51,8 @@ function getGreetingLine(firstName?: string | null): string {
 function calcProfileCompletion(
   profile: ProfileRow | null,
   hasAccount: boolean,
+  teachCount: number,
+  learnCount: number,
 ): { percent: number; readyToMatch: boolean; missing: string[] } {
   let percent = 0
   const missing: string[] = []
@@ -57,13 +63,10 @@ function calcProfileCompletion(
   if (profile?.full_name?.trim()) percent += 15
   else missing.push('Nombre en tu perfil')
 
-  const teach = profile?.skills?.filter(Boolean) ?? []
-  const learn = profile?.interests?.filter(Boolean) ?? []
-
-  if (teach.length > 0) percent += 25
+  if (teachCount > 0) percent += 25
   else missing.push('Al menos una habilidad para enseñar')
 
-  if (learn.length > 0) percent += 25
+  if (learnCount > 0) percent += 25
   else missing.push('Al menos un objetivo de aprendizaje')
 
   if (profile?.bio?.trim() && profile.bio.trim().length >= 20) percent += 10
@@ -71,7 +74,7 @@ function calcProfileCompletion(
 
   percent += 10
 
-  const readyToMatch = hasAccount && teach.length > 0 && learn.length > 0
+  const readyToMatch = hasAccount && teachCount > 0 && learnCount > 0
 
   return { percent: Math.min(percent, 100), readyToMatch, missing }
 }
@@ -87,6 +90,8 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true)
   const [email, setEmail] = useState('')
   const [profile, setProfile] = useState<ProfileRow | null>(null)
+  const [teachSkills, setTeachSkills] = useState<TeachSkillItem[]>([])
+  const [learnGoals, setLearnGoals] = useState<LearnGoalItem[]>([])
   const [stats, setStats] = useState<DashboardStats>({ matches: 0, sessions: 0, reviews: 0 })
   const [menuOpen, setMenuOpen] = useState(false)
 
@@ -105,9 +110,8 @@ export default function Dashboard() {
     const userId = authData.user.id
     setEmail(authData.user.email ?? '')
 
-    const profileFields =
-      'email, first_name, full_name, bio, skills, interests, created_at'
-    const profileFieldsLegacy = 'email, full_name, bio, skills, interests, created_at'
+    const profileFields = 'email, first_name, full_name, bio, created_at'
+    const profileFieldsLegacy = 'email, full_name, bio, created_at'
 
     let profileData: ProfileRow | null = null
     const { data, error } = await supabase
@@ -128,6 +132,18 @@ export default function Dashboard() {
     }
 
     setProfile(profileData)
+
+    try {
+      const [teachData, goalsData] = await Promise.all([
+        fetchTeachSkills(),
+        fetchLearnGoals(),
+      ])
+      setTeachSkills(teachData)
+      setLearnGoals(goalsData)
+    } catch {
+      setTeachSkills([])
+      setLearnGoals([])
+    }
 
     let matchCount = 0
     const { count } = await supabase
@@ -152,12 +168,15 @@ export default function Dashboard() {
   }
 
   const completion = useMemo(
-    () => calcProfileCompletion(profile, !!email),
-    [profile, email],
+    () =>
+      calcProfileCompletion(
+        profile,
+        !!email,
+        teachSkills.length,
+        learnGoals.length,
+      ),
+    [profile, email, teachSkills.length, learnGoals.length],
   )
-
-  const teachSkills = profile?.skills?.filter(Boolean) ?? []
-  const learnGoals = profile?.interests?.filter(Boolean) ?? []
   const greetingLine = getGreetingLine(profile?.first_name)
   const journeyStep = getActiveJourneyStep(stats)
 
@@ -251,25 +270,39 @@ export default function Dashboard() {
             <div className="dash-intro-skill-group">
               <p className="dash-intro-label">Enseño</p>
               {teachSkills.length > 0 ? (
-                <div className="chips dash-intro-chips">
-                  {teachSkills.map((skill) => (
-                    <span key={skill}>{skill}</span>
+                <div className="skills-chips dash-intro-chips">
+                  {teachSkills.map((item) => (
+                    <SkillChip
+                      key={item.id}
+                      name={item.skill.name}
+                      level={item.level}
+                      variant="teach"
+                    />
                   ))}
                 </div>
               ) : (
-                <p className="dash-intro-empty">Aún no agregaste habilidades</p>
+                <p className="dash-intro-empty">
+                  Agrega al menos una habilidad para comenzar.
+                </p>
               )}
             </div>
             <div className="dash-intro-skill-group">
               <p className="dash-intro-label">Aprendo</p>
               {learnGoals.length > 0 ? (
-                <div className="chips dash-intro-chips">
-                  {learnGoals.map((goal) => (
-                    <span key={goal}>{goal}</span>
+                <div className="skills-chips dash-intro-chips">
+                  {learnGoals.map((item) => (
+                    <SkillChip
+                      key={item.id}
+                      name={item.skill.name}
+                      level={item.level}
+                      variant="learn"
+                    />
                   ))}
                 </div>
               ) : (
-                <p className="dash-intro-empty">Aún no definiste objetivos</p>
+                <p className="dash-intro-empty">
+                  Agrega al menos un objetivo de aprendizaje.
+                </p>
               )}
             </div>
           </div>
@@ -389,13 +422,20 @@ export default function Dashboard() {
             <h2>Enseñar</h2>
             <p className="dash-section-desc">Lo que puedes ofrecer a otros.</p>
             {teachSkills.length > 0 ? (
-              <div className="chips">
-                {teachSkills.map((skill) => (
-                  <span key={skill}>{skill}</span>
+              <div className="skills-chips">
+                {teachSkills.map((item) => (
+                  <SkillChip
+                    key={item.id}
+                    name={item.skill.name}
+                    level={item.level}
+                    variant="teach"
+                  />
                 ))}
               </div>
             ) : (
-              <p className="dash-empty">Aún no agregaste habilidades para enseñar.</p>
+              <p className="dash-empty">
+                Agrega al menos una habilidad para comenzar.
+              </p>
             )}
             <p className="dash-meta">0 sesiones como anfitrión</p>
             <Link href="/onboarding" className="dash-link">
@@ -407,13 +447,20 @@ export default function Dashboard() {
             <h2>Aprender</h2>
             <p className="dash-section-desc">Lo que quieres desarrollar.</p>
             {learnGoals.length > 0 ? (
-              <div className="chips">
-                {learnGoals.map((goal) => (
-                  <span key={goal}>{goal}</span>
+              <div className="skills-chips">
+                {learnGoals.map((item) => (
+                  <SkillChip
+                    key={item.id}
+                    name={item.skill.name}
+                    level={item.level}
+                    variant="learn"
+                  />
                 ))}
               </div>
             ) : (
-              <p className="dash-empty">Aún no definiste qué quieres aprender.</p>
+              <p className="dash-empty">
+                Agrega al menos un objetivo de aprendizaje.
+              </p>
             )}
             <p className="dash-meta">0 sesiones como aprendiz</p>
             <Link href="/onboarding" className="dash-link">
