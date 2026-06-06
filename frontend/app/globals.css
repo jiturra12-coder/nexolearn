@@ -242,31 +242,55 @@ body {
   cursor: not-allowed;
 }
 
-.dash-avatar {
-  width: 44px;
-  height: 44px;
+.user-avatar {
   border-radius: 50%;
   overflow: hidden;
   flex-shrink: 0;
   background: linear-gradient(135deg, #8a2be2, #00b4d8);
-  box-shadow: 0 0 12px rgba(138, 43, 226, 0.3);
+  box-shadow: 0 0 16px rgba(138, 43, 226, 0.35);
 }
 
-.dash-avatar img {
+.user-avatar--sm {
+  width: 36px;
+  height: 36px;
+}
+
+.user-avatar--md {
+  width: 48px;
+  height: 48px;
+}
+
+.user-avatar--lg {
+  width: 72px;
+  height: 72px;
+}
+
+.user-avatar-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.dash-avatar-placeholder {
+.user-avatar-placeholder {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
   height: 100%;
-  font-size: 16px;
   font-weight: 700;
   color: #000;
+}
+
+.user-avatar--sm .user-avatar-placeholder {
+  font-size: 14px;
+}
+
+.user-avatar--md .user-avatar-placeholder {
+  font-size: 18px;
+}
+
+.user-avatar--lg .user-avatar-placeholder {
+  font-size: 28px;
 }
 
 .skills-editor-loading {
@@ -1216,20 +1240,74 @@ body {
   margin-bottom: 0;
 }
 
-.dash-greeting-row {
+.dash-profile-hero {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 14px;
+  gap: 14px;
+  margin-bottom: 16px;
 }
 
-.dash-greeting-row h1 {
-  margin: 0;
-  font-size: 26px;
-  line-height: 1.2;
+.dash-profile-identity {
   flex: 1;
   min-width: 0;
+}
+
+.dash-profile-identity h1 {
+  margin: 0;
+  font-size: 22px;
+  line-height: 1.2;
+  word-break: break-word;
+}
+
+.dash-profile-greeting {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: #b794f6;
+}
+
+.dash-profile-email {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.5);
+  word-break: break-all;
+}
+
+.dash-profile-hint {
+  margin: 6px 0 0;
+  font-size: 13px;
+}
+
+.dash-menu-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.dash-menu-name {
+  margin: 0 0 2px;
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+}
+
+.dash-sidebar-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.dash-sidebar-name {
+  margin: 0 0 4px;
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+  word-break: break-word;
 }
 
 .dash-greeting-pct {
@@ -1622,10 +1700,19 @@ body {
   }
 
   .dash-sidebar-email {
-    margin: 0 0 20px;
+    margin: 0;
     font-size: 12px;
     color: rgba(255, 255, 255, 0.45);
     word-break: break-all;
+  }
+
+  .dash-profile-identity h1 {
+    font-size: 28px;
+  }
+
+  .user-avatar--lg {
+    width: 80px;
+    height: 80px;
   }
 
   .dash-sidebar nav {

@@ -9,7 +9,7 @@ import {
   type ChangeEvent,
 } from 'react'
 import { AuthNotice } from '@/components/auth/AuthNotice'
-import { saveProfileBasics, uploadAvatar } from '@/lib/profile'
+import { fetchUserProfile, saveProfileBasics, uploadAvatar } from '@/lib/profile'
 import { supabase } from '@/lib/supabase'
 
 export interface ProfileBasicsEditorHandle {
@@ -52,28 +52,7 @@ export const ProfileBasicsEditor = forwardRef<
     setUserId(authData.user.id)
     setEmail(authData.user.email ?? '')
 
-    let profileData: {
-      full_name?: string | null
-      first_name?: string | null
-      avatar_url?: string | null
-    } | null = null
-
-    const { data, error: fetchError } = await supabase
-      .from('profiles')
-      .select('full_name, first_name, avatar_url')
-      .eq('id', authData.user.id)
-      .maybeSingle()
-
-    if (!fetchError && data) {
-      profileData = data
-    } else {
-      const { data: legacyData } = await supabase
-        .from('profiles')
-        .select('full_name, avatar_url')
-        .eq('id', authData.user.id)
-        .maybeSingle()
-      profileData = legacyData
-    }
+    const profileData = await fetchUserProfile(authData.user.id)
 
     if (profileData) {
       setFullName(
@@ -137,6 +116,7 @@ export const ProfileBasicsEditor = forwardRef<
     }
 
     setSuccess('Perfil actualizado correctamente.')
+    window.dispatchEvent(new Event('nexolearn:profile-updated'))
     return true
   }
 

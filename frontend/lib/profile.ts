@@ -9,8 +9,77 @@ const ALLOWED_TYPES = new Set([
   'image/gif',
 ])
 
+const BLOCKED_GREETING_NAMES = new Set([
+  'admin',
+  'user',
+  'guest',
+  'student',
+  'teacher',
+  'usuario',
+  'invitado',
+])
+
 export function getFirstName(fullName: string): string {
   return fullName.trim().split(/\s+/)[0] ?? ''
+}
+
+export function getProfileDisplayName(profile: {
+  full_name?: string | null
+  first_name?: string | null
+} | null): string | null {
+  const full = profile?.full_name?.trim()
+  if (full) return full
+
+  const first = profile?.first_name?.trim()
+  if (first && !BLOCKED_GREETING_NAMES.has(first.toLowerCase())) return first
+
+  return null
+}
+
+export function hasProfileName(profile: {
+  full_name?: string | null
+  first_name?: string | null
+} | null): boolean {
+  return getProfileDisplayName(profile) !== null
+}
+
+export interface ProfileBasics {
+  email?: string
+  first_name?: string | null
+  full_name?: string | null
+  avatar_url?: string | null
+  bio?: string | null
+  created_at?: string
+}
+
+const PROFILE_SELECT_ATTEMPTS = [
+  'first_name, full_name, avatar_url, email',
+  'full_name, first_name, avatar_url',
+  'first_name, avatar_url',
+  'full_name, avatar_url',
+  'avatar_url',
+] as const
+
+export async function fetchUserProfile(
+  userId: string,
+): Promise<ProfileBasics | null> {
+  let merged: ProfileBasics = {}
+
+  for (const fields of PROFILE_SELECT_ATTEMPTS) {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select(fields)
+      .eq('id', userId)
+      .maybeSingle()
+
+    if (!error && data) {
+      merged = { ...merged, ...(data as ProfileBasics) }
+    }
+  }
+
+  if (Object.keys(merged).length === 0) return null
+
+  return merged
 }
 
 function translateProfileError(message: string, code?: string): string {
@@ -82,38 +151,75 @@ export async function uploadAvatar(
   return { url }
 }
 
-async function updateProfileRow(
-  userId: string,
-  payload: Record<string, string | null>,
-): Promise<{ ok: true } | { error: string }> {
-  const { error } = await supabase
-    .from('profiles')
-    .update(payload)
-    .eq('id', userId)
+function buildProfilePayloads(
+  fullName: string,
+  avatarUrl?: string | null,
+): Record<string, string | null>[] {
+  const firstName = getFirstName(fullName)
+  const variants: Record<string, string | null>[] = [
+    { full_name: fullName, first_name: firstName },
+    { full_name: fullName },
+    { first_name: firstName },
+  ]
 
-  if (error) {
-    return { error: translateProfileError(error.message, error.code) }
-  }
+  if (!avatarUrl) return variants
 
-  return { ok: true }
+  return variants.map((variant) => ({
+    ...variant,
+    avatar_url: avatarUrl,
+  }))
 }
 
-async function insertProfileRow(
+function isColumnError(message: string): boolean {
+  const lower = message.toLowerCase()
+  return (
+    lower.includes('column') ||
+    lower.includes('schema cache') ||
+    lower.includes('full_name') ||
+    lower.includes('first_name')
+  )
+}
+
+async function tryProfileWrites(
   userId: string,
   email: string,
-  payload: Record<string, string | null>,
+  payloads: Record<string, string | null>[],
+  existing: boolean,
 ): Promise<{ ok: true } | { error: string }> {
-  const { error } = await supabase.from('profiles').insert({
-    id: userId,
-    email,
-    ...payload,
-  })
+  let lastError = 'No se pudo guardar tu perfil. Inténtalo nuevamente.'
 
-  if (error) {
-    return { error: translateProfileError(error.message, error.code) }
+  for (const row of payloads) {
+    if (existing) {
+      const { error } = await supabase
+        .from('profiles')
+        .update(row)
+        .eq('id', userId)
+
+      if (!error) return { ok: true }
+
+      lastError = translateProfileError(error.message, error.code)
+      if (!isColumnError(error.message)) {
+        console.error('profile update failed', error)
+        return { error: lastError }
+      }
+    } else {
+      const { error } = await supabase.from('profiles').insert({
+        id: userId,
+        email,
+        ...row,
+      })
+
+      if (!error) return { ok: true }
+
+      lastError = translateProfileError(error.message, error.code)
+      if (!isColumnError(error.message)) {
+        console.error('profile insert failed', error)
+        return { error: lastError }
+      }
+    }
   }
 
-  return { ok: true }
+  return { error: lastError }
 }
 
 export async function saveProfileBasics(payload: {
@@ -132,13 +238,7 @@ export async function saveProfileBasics(payload: {
     return { error: 'El nombre debe tener al menos 2 caracteres.' }
   }
 
-  const basePayload: Record<string, string | null> = {
-    full_name: fullName,
-  }
-
-  if (payload.avatarUrl) {
-    basePayload.avatar_url = payload.avatarUrl
-  }
+  const payloads = buildProfilePayloads(fullName, payload.avatarUrl)
 
   const { data: existing } = await supabase
     .from('profiles')
@@ -147,40 +247,12 @@ export async function saveProfileBasics(payload: {
     .maybeSingle()
 
   if (existing) {
-    let result = await updateProfileRow(payload.userId, basePayload)
-
-    if ('error' in result && result.error.includes('columnas del perfil')) {
-      const legacyPayload: Record<string, string | null> = {
-        first_name: getFirstName(fullName),
-      }
-      if (payload.avatarUrl) legacyPayload.avatar_url = payload.avatarUrl
-      result = await updateProfileRow(payload.userId, legacyPayload)
-    }
-
-    if ('error' in result) {
-      console.error('profile update failed', result.error)
-    }
-
-    return result
+    return tryProfileWrites(payload.userId, payload.email, payloads, true)
   }
 
   if (!payload.email) {
     return { error: 'No encontramos tu correo electrónico.' }
   }
 
-  let result = await insertProfileRow(payload.userId, payload.email, basePayload)
-
-  if ('error' in result) {
-    const withFirstName: Record<string, string | null> = {
-      first_name: getFirstName(fullName),
-    }
-    if (payload.avatarUrl) withFirstName.avatar_url = payload.avatarUrl
-    result = await insertProfileRow(payload.userId, payload.email, withFirstName)
-  }
-
-  if ('error' in result) {
-    console.error('profile insert failed', result.error)
-  }
-
-  return result
+  return tryProfileWrites(payload.userId, payload.email, payloads, false)
 }

@@ -10,15 +10,15 @@ import {
 } from '@/lib/api/skills-client'
 import type { LearnGoalItem, TeachSkillItem } from '@/lib/skills-types'
 import { SkillChip } from '@/components/skills/SkillChip'
-
-interface ProfileRow {
-  email?: string
-  first_name?: string | null
-  full_name?: string | null
-  avatar_url?: string | null
-  bio?: string | null
-  created_at?: string
-}
+import { UserAvatar } from '@/components/profile/UserAvatar'
+import { getGreetingLine } from '@/lib/profile-display'
+import {
+  fetchUserProfile,
+  getFirstName,
+  getProfileDisplayName,
+  hasProfileName,
+  type ProfileBasics,
+} from '@/lib/profile'
 
 interface DashboardStats {
   matches: number
@@ -28,29 +28,8 @@ interface DashboardStats {
 
 type JourneyStep = 'match' | 'session' | 'review'
 
-const BLOCKED_GREETING_NAMES = new Set([
-  'admin',
-  'user',
-  'guest',
-  'student',
-  'teacher',
-  'usuario',
-  'invitado',
-])
-
-function formatFirstName(name: string): string {
-  return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase()
-}
-
-function getGreetingLine(firstName?: string | null): string {
-  const trimmed = firstName?.trim()
-  if (!trimmed) return 'Bienvenido 👋'
-  if (BLOCKED_GREETING_NAMES.has(trimmed.toLowerCase())) return 'Bienvenido 👋'
-  return `Hola, ${formatFirstName(trimmed)}`
-}
-
 function calcProfileCompletion(
-  profile: ProfileRow | null,
+  profile: ProfileBasics | null,
   hasAccount: boolean,
   teachCount: number,
   learnCount: number,
@@ -61,7 +40,7 @@ function calcProfileCompletion(
   if (hasAccount) percent += 15
   else missing.push('Cuenta activa')
 
-  if (profile?.full_name?.trim()) percent += 15
+  if (hasProfileName(profile)) percent += 15
   else missing.push('Nombre en tu perfil')
 
   if (teachCount > 0) percent += 25
@@ -90,7 +69,7 @@ export default function Dashboard() {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [email, setEmail] = useState('')
-  const [profile, setProfile] = useState<ProfileRow | null>(null)
+  const [profile, setProfile] = useState<ProfileBasics | null>(null)
   const [teachSkills, setTeachSkills] = useState<TeachSkillItem[]>([])
   const [learnGoals, setLearnGoals] = useState<LearnGoalItem[]>([])
   const [stats, setStats] = useState<DashboardStats>({ matches: 0, sessions: 0, reviews: 0 })
@@ -98,6 +77,24 @@ export default function Dashboard() {
 
   useEffect(() => {
     loadDashboard()
+
+    function onVisible() {
+      if (document.visibilityState === 'visible') loadDashboard()
+    }
+
+    function onProfileUpdated() {
+      loadDashboard()
+    }
+
+    document.addEventListener('visibilitychange', onVisible)
+    window.addEventListener('nexolearn:profile-updated', onProfileUpdated)
+    window.addEventListener('focus', onProfileUpdated)
+
+    return () => {
+      document.removeEventListener('visibilitychange', onVisible)
+      window.removeEventListener('nexolearn:profile-updated', onProfileUpdated)
+      window.removeEventListener('focus', onProfileUpdated)
+    }
   }, [])
 
   async function loadDashboard() {
@@ -111,28 +108,7 @@ export default function Dashboard() {
     const userId = authData.user.id
     setEmail(authData.user.email ?? '')
 
-    const profileFields =
-      'email, first_name, full_name, avatar_url, bio, created_at'
-    const profileFieldsLegacy = 'email, full_name, avatar_url, bio, created_at'
-
-    let profileData: ProfileRow | null = null
-    const { data, error } = await supabase
-      .from('profiles')
-      .select(profileFields)
-      .eq('id', userId)
-      .maybeSingle()
-
-    if (error) {
-      const { data: legacyData } = await supabase
-        .from('profiles')
-        .select(profileFieldsLegacy)
-        .eq('id', userId)
-        .maybeSingle()
-      profileData = legacyData ?? null
-    } else {
-      profileData = data ?? null
-    }
-
+    const profileData = await fetchUserProfile(userId)
     setProfile(profileData)
 
     try {
@@ -179,14 +155,10 @@ export default function Dashboard() {
       ),
     [profile, email, teachSkills.length, learnGoals.length],
   )
+  const displayName = getProfileDisplayName(profile)
   const greetingLine = getGreetingLine(
-    profile?.first_name ?? profile?.full_name?.split(/\s+/)[0],
+    displayName ? getFirstName(displayName) : null,
   )
-  const avatarInitial =
-    profile?.full_name?.trim().charAt(0) ||
-    profile?.first_name?.trim().charAt(0) ||
-    email.charAt(0).toUpperCase() ||
-    '?'
   const journeyStep = getActiveJourneyStep(stats)
 
   const nextAction = useMemo(() => {
@@ -255,7 +227,18 @@ export default function Dashboard() {
         </button>
         {menuOpen && (
           <div className="dash-menu">
-            <p className="dash-menu-email">{email}</p>
+            <div className="dash-menu-user">
+              <UserAvatar
+                size="sm"
+                name={displayName}
+                email={email}
+                imageUrl={profile?.avatar_url}
+              />
+              <div>
+                <p className="dash-menu-name">{displayName ?? 'Tu perfil'}</p>
+                <p className="dash-menu-email">{email}</p>
+              </div>
+            </div>
             <Link href="/onboarding" className="dash-menu-link" onClick={() => setMenuOpen(false)}>
               Editar perfil
             </Link>
@@ -269,17 +252,32 @@ export default function Dashboard() {
       <main className="dash-main">
         <section className="dash-intro card">
           <p className="dash-eyebrow">Tu espacio de intercambio</p>
-          <div className="dash-greeting-row">
-            <div className="dash-avatar" aria-hidden="true">
-              {profile?.avatar_url ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={profile.avatar_url} alt="" />
+          <div className="dash-profile-hero">
+            <UserAvatar
+              size="lg"
+              name={displayName}
+              email={email}
+              imageUrl={profile?.avatar_url}
+            />
+            <div className="dash-profile-identity">
+              <h1>{displayName ?? 'Bienvenido 👋'}</h1>
+              {displayName ? (
+                <>
+                  <p className="dash-profile-greeting">{greetingLine}</p>
+                  <p className="dash-profile-email">{email}</p>
+                </>
               ) : (
-                <span className="dash-avatar-placeholder">{avatarInitial}</span>
+                <p className="dash-profile-hint">
+                  <Link href="/onboarding" className="dash-link">
+                    Agrega tu nombre y foto
+                  </Link>
+                </p>
               )}
             </div>
-            <h1>{greetingLine}</h1>
-            <span className="dash-greeting-pct" aria-label={`Perfil ${completion.percent}% completo`}>
+            <span
+              className="dash-greeting-pct"
+              aria-label={`Perfil ${completion.percent}% completo`}
+            >
               {completion.percent}%
             </span>
           </div>
@@ -557,7 +555,18 @@ export default function Dashboard() {
 
       <aside className="dash-sidebar" aria-label="Navegación lateral">
         <p className="dash-sidebar-brand">NexoLearn</p>
-        <p className="dash-sidebar-email">{email}</p>
+        <div className="dash-sidebar-user">
+          <UserAvatar
+            size="md"
+            name={displayName}
+            email={email}
+            imageUrl={profile?.avatar_url}
+          />
+          <div>
+            <p className="dash-sidebar-name">{displayName ?? 'Tu perfil'}</p>
+            <p className="dash-sidebar-email">{email}</p>
+          </div>
+        </div>
         <nav>
           <Link href="/dashboard" className="is-active">
             Inicio
