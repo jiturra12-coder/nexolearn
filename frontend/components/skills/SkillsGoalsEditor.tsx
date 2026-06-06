@@ -27,7 +27,7 @@ import {
 import { SkillChip } from './SkillChip'
 
 interface SkillsGoalsEditorProps {
-  onComplete?: () => void
+  onComplete?: () => void | Promise<void>
   showContinueButton?: boolean
   continueLabel?: string
 }
@@ -224,9 +224,14 @@ export function SkillsGoalsEditor({
     }
 
     setBusyContinue(true)
-    setContinueSuccess('Perfil de habilidades guardado correctamente.')
-    setBusyContinue(false)
-    onComplete?.()
+    try {
+      await onComplete?.()
+      setContinueSuccess('Perfil guardado correctamente.')
+    } catch {
+      setContinueError('No se pudo guardar el perfil. Revisa los datos.')
+    } finally {
+      setBusyContinue(false)
+    }
   }
 
   if (loading) {

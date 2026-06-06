@@ -1,13 +1,18 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { ActivationProgress } from '@/components/auth/ActivationProgress'
+import {
+  ProfileBasicsEditor,
+  type ProfileBasicsEditorHandle,
+} from '@/components/profile/ProfileBasicsEditor'
 import { SkillsGoalsEditor } from '@/components/skills/SkillsGoalsEditor'
 
 export default function Onboarding() {
   const router = useRouter()
+  const profileRef = useRef<ProfileBasicsEditorHandle>(null)
 
   useEffect(() => {
     checkUser()
@@ -28,18 +33,28 @@ export default function Onboarding() {
     }
   }
 
+  async function handleComplete() {
+    const profileSaved = await profileRef.current?.save()
+    if (!profileSaved) {
+      throw new Error('No se pudo guardar el perfil.')
+    }
+    router.push('/dashboard')
+  }
+
   return (
     <div className="onboarding skills-onboarding">
       <ActivationProgress currentStep={3} />
 
-      <h1>Configura tu perfil</h1>
+      <h1>Editar perfil</h1>
       <p className="skills-onboarding-lead">
-        Define qué puedes enseñar y qué quieres aprender. Esto prepara tu perfil
-        para el motor de conexiones.
+        Actualiza tu nombre y foto, y define qué puedes enseñar y qué quieres
+        aprender.
       </p>
 
+      <ProfileBasicsEditor ref={profileRef} />
+
       <SkillsGoalsEditor
-        onComplete={() => router.push('/dashboard')}
+        onComplete={handleComplete}
         continueLabel="Guardar y continuar"
       />
     </div>

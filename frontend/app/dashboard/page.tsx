@@ -15,6 +15,7 @@ interface ProfileRow {
   email?: string
   first_name?: string | null
   full_name?: string | null
+  avatar_url?: string | null
   bio?: string | null
   created_at?: string
 }
@@ -110,8 +111,9 @@ export default function Dashboard() {
     const userId = authData.user.id
     setEmail(authData.user.email ?? '')
 
-    const profileFields = 'email, first_name, full_name, bio, created_at'
-    const profileFieldsLegacy = 'email, full_name, bio, created_at'
+    const profileFields =
+      'email, first_name, full_name, avatar_url, bio, created_at'
+    const profileFieldsLegacy = 'email, full_name, avatar_url, bio, created_at'
 
     let profileData: ProfileRow | null = null
     const { data, error } = await supabase
@@ -177,7 +179,14 @@ export default function Dashboard() {
       ),
     [profile, email, teachSkills.length, learnGoals.length],
   )
-  const greetingLine = getGreetingLine(profile?.first_name)
+  const greetingLine = getGreetingLine(
+    profile?.first_name ?? profile?.full_name?.split(/\s+/)[0],
+  )
+  const avatarInitial =
+    profile?.full_name?.trim().charAt(0) ||
+    profile?.first_name?.trim().charAt(0) ||
+    email.charAt(0).toUpperCase() ||
+    '?'
   const journeyStep = getActiveJourneyStep(stats)
 
   const nextAction = useMemo(() => {
@@ -261,6 +270,14 @@ export default function Dashboard() {
         <section className="dash-intro card">
           <p className="dash-eyebrow">Tu espacio de intercambio</p>
           <div className="dash-greeting-row">
+            <div className="dash-avatar" aria-hidden="true">
+              {profile?.avatar_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={profile.avatar_url} alt="" />
+              ) : (
+                <span className="dash-avatar-placeholder">{avatarInitial}</span>
+              )}
+            </div>
             <h1>{greetingLine}</h1>
             <span className="dash-greeting-pct" aria-label={`Perfil ${completion.percent}% completo`}>
               {completion.percent}%
