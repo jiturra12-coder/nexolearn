@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useState, useEffect, useRef, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { sendConfirmationEmail } from '@/lib/auth-email'
+import { completeAuthPopup, isAuthPopupMode, parseFlowId } from '@/lib/auth-popup'
 import { getLocalUser } from '@/lib/auth-session'
 import { supabase } from '@/lib/supabase'
 import { AuthNotice } from '@/components/auth/AuthNotice'
@@ -19,6 +20,20 @@ function ConfirmEmailContent() {
   const [error, setError] = useState('')
   const [checking, setChecking] = useState(true)
   const autoSendStarted = useRef(false)
+
+  function finishConfirmed() {
+    const search = window.location.search
+    const popupMode = isAuthPopupMode(search)
+    const flowId = parseFlowId(search)
+    const nextPath = searchParams.get('next') ?? '/dashboard'
+
+    if (popupMode && flowId) {
+      completeAuthPopup(flowId, { status: 'success', next: nextPath })
+      return
+    }
+
+    router.replace(nextPath)
+  }
 
   useEffect(() => {
     const fromQuery = searchParams.get('email')
@@ -50,13 +65,13 @@ function ConfirmEmailContent() {
           setError('El enlace no es válido o ha expirado. Solicita uno nuevo.')
           return
         }
-        router.replace('/dashboard')
+        finishConfirmed()
         return
       }
 
       const user = await getLocalUser()
       if (!cancelled && user?.email_confirmed_at) {
-        router.replace('/dashboard')
+        finishConfirmed()
       }
     }
 
@@ -70,7 +85,7 @@ function ConfirmEmailContent() {
         (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') &&
         session?.user?.email_confirmed_at
       ) {
-        router.replace('/dashboard')
+        finishConfirmed()
       }
     })
 

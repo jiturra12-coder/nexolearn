@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover"
+    />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="theme-color" content="#0a0a12" />
+    <meta
+      name="description"
+      content="Acceso móvil HTML5 a NexoLearn — intercambio recíproco de conocimiento."
+    />
+    <title>NexoLearn — Acceso móvil</title>
+    <link rel="stylesheet" href="/mobile-auth.css" />
+  </head>
+  <body>
+    <main class="mobile-auth" role="main">
+      <header class="mobile-auth-header">
+        <p class="mobile-auth-eyebrow">NexoLearn</p>
+        <h1>Acceso móvil</h1>
+        <p class="mobile-auth-lead">
+          Inicia sesión en pantalla completa, optimizado para teléfono y tablet.
+        </p>
+      </header>
+
+      <section class="mobile-auth-actions" aria-label="Acciones de acceso">
+        <a class="mobile-auth-btn" id="continue" href="/signin">Continuar</a>
+        <a class="mobile-auth-link" id="signup" href="/signup">Crear cuenta</a>
+      </section>
+    </main>
+
+    <script>
+      ;(function () {
+        var params = new URLSearchParams(window.location.search)
+        var flowId = params.get('flowId') || crypto.randomUUID()
+        var next = params.get('next') || '/dashboard'
+        var signinParams = new URLSearchParams({
+          flowId: flowId,
+          mobile: '1',
+          next: next,
+        })
+
+        document.getElementById('continue').href =
+          '/signin?' + signinParams.toString()
+
+        var signupParams = new URLSearchParams({
+          flowId: flowId,
+          mobile: '1',
+          popup: '1',
+          next: next,
+        })
+        document.getElementById('signup').href =
+          '/signup?' + signupParams.toString()
+      })()
+    </script>
+  </body>
+</html>

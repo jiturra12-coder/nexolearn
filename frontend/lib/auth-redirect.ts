@@ -1,8 +1,17 @@
+import { readStashedAuthFlowId } from '@/lib/auth-popup'
+
 export function getEmailConfirmationRedirectUrl(): string | undefined {
   if (typeof window === 'undefined') return undefined
 
   const configured = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '')
   const origin = configured || window.location.origin
+  const flowId = readStashedAuthFlowId()
+
+  if (flowId) {
+    const params = new URLSearchParams({ flowId })
+    return `${origin}/auth/callback?${params.toString()}`
+  }
+
   return `${origin}/confirm-email`
 }
 

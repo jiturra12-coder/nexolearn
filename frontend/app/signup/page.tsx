@@ -32,9 +32,25 @@ export default function SignupPage() {
     if (typeof window !== 'undefined') {
       sessionStorage.setItem('nexolearn_pending_email', emailValue)
     }
-    router.push(
-      `/confirm-email?email=${encodeURIComponent(emailValue)}&send=1`,
-    )
+
+    const params = new URLSearchParams({
+      email: emailValue,
+      send: '1',
+    })
+
+    if (typeof window !== 'undefined') {
+      const current = new URLSearchParams(window.location.search)
+      const flowId = current.get('flowId')
+      const popup = current.get('popup')
+      const mobile = current.get('mobile')
+      const next = current.get('next')
+      if (flowId) params.set('flowId', flowId)
+      if (popup) params.set('popup', popup)
+      if (mobile) params.set('mobile', mobile)
+      if (next) params.set('next', next)
+    }
+
+    router.push(`/confirm-email?${params.toString()}`)
   }
 
   async function checkSession() {
