@@ -3,7 +3,6 @@
 import Link from 'next/link'
 import { useState, useEffect, type FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
-import { isDuplicateSignupUser } from '@/lib/auth-email'
 import { getEmailConfirmationRedirectUrl } from '@/lib/auth-redirect'
 import { getLocalUser, withAuthRateLimitRetry } from '@/lib/auth-session'
 import { supabase } from '@/lib/supabase'
@@ -28,29 +27,11 @@ export default function SignupPage() {
     checkSession()
   }, [])
 
-  function goToConfirmEmail(emailValue: string) {
+  function goToDashboardVerify(emailValue: string) {
     if (typeof window !== 'undefined') {
       sessionStorage.setItem('nexolearn_pending_email', emailValue)
     }
-
-    const params = new URLSearchParams({
-      email: emailValue,
-      send: '1',
-    })
-
-    if (typeof window !== 'undefined') {
-      const current = new URLSearchParams(window.location.search)
-      const flowId = current.get('flowId')
-      const popup = current.get('popup')
-      const mobile = current.get('mobile')
-      const next = current.get('next')
-      if (flowId) params.set('flowId', flowId)
-      if (popup) params.set('popup', popup)
-      if (mobile) params.set('mobile', mobile)
-      if (next) params.set('next', next)
-    }
-
-    router.push(`/confirm-email?${params.toString()}`)
+    router.push(`/dashboard?verify=1&email=${encodeURIComponent(emailValue)}`)
   }
 
   async function checkSession() {
@@ -63,7 +44,7 @@ export default function SignupPage() {
       router.replace('/dashboard')
       return
     }
-    goToConfirmEmail(user.email ?? '')
+    goToDashboardVerify(user.email ?? '')
   }
 
   async function handleSubmit(e: FormEvent) {
@@ -84,7 +65,7 @@ export default function SignupPage() {
 
     const emailRedirectTo = getEmailConfirmationRedirectUrl()
 
-    const { data, error: signUpError } = await withAuthRateLimitRetry(() =>
+    const { error: signUpError } = await withAuthRateLimitRetry(() =>
       supabase.auth.signUp({
         email,
         password,
@@ -99,31 +80,15 @@ export default function SignupPage() {
         isExistingAccountError(signUpError.message)
       ) {
         setBusy(false)
-        goToConfirmEmail(email)
+        goToDashboardVerify(email)
         return
       }
       setError(translateAuthError(signUpError.message))
       return
     }
 
-    const user = data.user
-    const duplicateSignup = isDuplicateSignupUser(user)
-
-    if (user && !duplicateSignup) {
-      const { error: profileError } = await supabase.from('profiles').insert([
-        {
-          id: user.id,
-          email: user.email,
-        },
-      ])
-
-      if (profileError) {
-        console.error(profileError)
-      }
-    }
-
     setBusy(false)
-    goToConfirmEmail(email)
+    goToDashboardVerify(email)
   }
 
   if (loading) {

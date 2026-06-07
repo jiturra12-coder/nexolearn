@@ -54,3 +54,4 @@ coverage/
 .next/
 .turbo/
 dist/
+.vercel

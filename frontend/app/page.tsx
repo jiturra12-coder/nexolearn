@@ -16,7 +16,7 @@ export default function HomePage() {
       if (code) {
         const { error } = await supabase.auth.exchangeCodeForSession(code)
         if (!error) {
-          router.replace('/dashboard')
+          router.replace('/dashboard?setup=profile')
           return
         }
       }
@@ -25,9 +25,8 @@ export default function HomePage() {
       if (user?.email_confirmed_at) {
         router.replace('/dashboard')
       } else if (user) {
-        router.replace(
-          `/confirm-email?email=${encodeURIComponent(user.email ?? '')}`,
-        )
+        const email = encodeURIComponent(user.email ?? '')
+        router.replace(`/dashboard?verify=1&email=${email}`)
       } else {
         router.replace('/login')
       }

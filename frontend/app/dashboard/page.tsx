@@ -1,8 +1,11 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useState, useMemo } from 'react'
-import { useRouter } from 'next/navigation'
+import { useEffect, useState, useMemo, useCallback } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { Suspense } from 'react'
+import { EmailVerificationModal } from '@/components/auth/EmailVerificationModal'
+import { SkillsGoalsEditor } from '@/components/skills/SkillsGoalsEditor'
 import { getLocalUser } from '@/lib/auth-session'
 import { supabase } from '@/lib/supabase'
 import {
@@ -63,46 +66,22 @@ function getActiveJourneyStep(stats: DashboardStats): JourneyStep {
   return 'review'
 }
 
-export default function Dashboard() {
+function DashboardContent() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [loading, setLoading] = useState(true)
   const [email, setEmail] = useState('')
+  const [emailConfirmed, setEmailConfirmed] = useState(true)
+  const [showVerifyModal, setShowVerifyModal] = useState(false)
   const [profile, setProfile] = useState<ProfileBasics | null>(null)
   const [teachSkills, setTeachSkills] = useState<TeachSkillItem[]>([])
   const [learnGoals, setLearnGoals] = useState<LearnGoalItem[]>([])
   const [stats, setStats] = useState<DashboardStats>({ matches: 0, sessions: 0, reviews: 0 })
   const [menuOpen, setMenuOpen] = useState(false)
 
-  useEffect(() => {
-    async function init() {
-      const code = new URLSearchParams(window.location.search).get('code')
-      if (code) {
-        await supabase.auth.exchangeCodeForSession(code)
-        window.history.replaceState({}, '', '/dashboard')
-      }
-      loadDashboard()
-    }
+  const forceProfileSetup = searchParams.get('setup') === 'profile'
 
-    init()
-
-    function onVisible() {
-      if (document.visibilityState === 'visible') loadDashboard()
-    }
-
-    function onProfileUpdated() {
-      loadDashboard()
-    }
-
-    document.addEventListener('visibilitychange', onVisible)
-    window.addEventListener('nexolearn:profile-updated', onProfileUpdated)
-
-    return () => {
-      document.removeEventListener('visibilitychange', onVisible)
-      window.removeEventListener('nexolearn:profile-updated', onProfileUpdated)
-    }
-  }, [])
-
-  async function loadDashboard() {
+  const loadDashboard = useCallback(async () => {
     const user = await getLocalUser()
 
     if (!user) {
@@ -111,7 +90,17 @@ export default function Dashboard() {
     }
 
     const userId = user.id
-    setEmail(user.email ?? '')
+    const resolvedEmail =
+      user.email ??
+      searchParams.get('email') ??
+      (typeof window !== 'undefined'
+        ? sessionStorage.getItem('nexolearn_pending_email')
+        : null) ??
+      ''
+    setEmail(resolvedEmail)
+    const confirmed = Boolean(user.email_confirmed_at)
+    setEmailConfirmed(confirmed)
+    setShowVerifyModal(!confirmed)
 
     const profileData = await fetchUserProfile(userId)
     setProfile(profileData)
@@ -143,7 +132,72 @@ export default function Dashboard() {
     })
 
     setLoading(false)
-  }
+
+    if (confirmed) {
+      const params = new URLSearchParams(window.location.search)
+      if (params.has('verify') || params.has('email')) {
+        params.delete('verify')
+        params.delete('email')
+        const next = params.toString()
+        window.history.replaceState(
+          {},
+          '',
+          next ? `/dashboard?${next}` : '/dashboard',
+        )
+      }
+    }
+  }, [router, searchParams])
+
+  useEffect(() => {
+    async function init() {
+      const code = new URLSearchParams(window.location.search).get('code')
+      if (code) {
+        await supabase.auth.exchangeCodeForSession(code)
+        window.history.replaceState({}, '', '/dashboard?setup=profile')
+      }
+      loadDashboard()
+    }
+
+    init()
+
+    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (
+        (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') &&
+        session?.user?.email_confirmed_at
+      ) {
+        setShowVerifyModal(false)
+        setEmailConfirmed(true)
+        loadDashboard()
+      }
+    })
+
+    function onVisible() {
+      if (document.visibilityState === 'visible') loadDashboard()
+    }
+
+    function onProfileUpdated() {
+      loadDashboard()
+    }
+
+    document.addEventListener('visibilitychange', onVisible)
+    window.addEventListener('nexolearn:profile-updated', onProfileUpdated)
+
+    return () => {
+      document.removeEventListener('visibilitychange', onVisible)
+      window.removeEventListener('nexolearn:profile-updated', onProfileUpdated)
+      listener.subscription.unsubscribe()
+    }
+  }, [loadDashboard])
+
+  useEffect(() => {
+    if (loading || !forceProfileSetup) return
+    const el = document.getElementById('dash-profile-setup')
+    if (el) {
+      requestAnimationFrame(() =>
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' }),
+      )
+    }
+  }, [loading, forceProfileSetup])
 
   async function signOut() {
     await supabase.auth.signOut()
@@ -166,13 +220,16 @@ export default function Dashboard() {
   )
   const journeyStep = getActiveJourneyStep(stats)
 
+  const showProfileSetup =
+    emailConfirmed && (!completion.readyToMatch || forceProfileSetup)
+
   const nextAction = useMemo(() => {
     if (!completion.readyToMatch) {
       return {
         title: 'Completa tu perfil',
-        body: 'Necesitamos saber qué puedes enseñar y qué quieres aprender para conectarte con la persona adecuada.',
-        cta: 'Completar perfil',
-        href: '/onboarding',
+        body: 'Indica qué puedes enseñar y qué quieres aprender para encontrar tu primera conexión.',
+        cta: 'Completar ahora',
+        href: '#dash-profile-setup',
         secondary: null as string | null,
         secondaryHref: null as string | null,
       }
@@ -184,7 +241,7 @@ export default function Dashboard() {
         cta: 'Ver conexiones',
         href: '/matches',
         secondary: 'Editar perfil',
-        secondaryHref: '/onboarding',
+        secondaryHref: '#dash-profile-setup',
       }
     }
     if (stats.sessions === 0) {
@@ -217,6 +274,14 @@ export default function Dashboard() {
 
   return (
     <div className="dash-v2">
+      {showVerifyModal && email ? (
+        <EmailVerificationModal
+          email={email}
+          autoSend={searchParams.get('verify') === '1'}
+          onConfirmed={() => loadDashboard()}
+        />
+      ) : null}
+
       <header className="dash-topbar">
         <Link href="/dashboard" className="dash-brand">
           NexoLearn
@@ -244,7 +309,11 @@ export default function Dashboard() {
                 <p className="dash-menu-email">{email}</p>
               </div>
             </div>
-            <Link href="/onboarding" className="dash-menu-link" onClick={() => setMenuOpen(false)}>
+            <Link
+              href="/dashboard?setup=profile"
+              className="dash-menu-link"
+              onClick={() => setMenuOpen(false)}
+            >
               Editar perfil
             </Link>
             <button type="button" className="dash-menu-link dash-menu-signout" onClick={signOut}>
@@ -273,9 +342,7 @@ export default function Dashboard() {
                 </>
               ) : (
                 <p className="dash-profile-hint">
-                  <Link href="/onboarding" className="dash-link">
-                    Agrega tu nombre y foto
-                  </Link>
+                  Completa tus habilidades abajo para personalizar tu perfil.
                 </p>
               )}
             </div>
@@ -362,17 +429,56 @@ export default function Dashboard() {
           </ul>
         </section>
 
+        {showProfileSetup ? (
+          <section id="dash-profile-setup" className="card dash-profile-setup">
+            <p className="dash-section-label">Completa tu perfil</p>
+            <h2>¿Qué puedes enseñar y qué quieres aprender?</h2>
+            <p className="dash-section-desc">
+              Define al menos una habilidad para enseñar y un objetivo de
+              aprendizaje para activar las conexiones.
+            </p>
+            <SkillsGoalsEditor
+              showContinueButton
+              continueLabel="Guardar y continuar"
+              onComplete={async () => {
+                await loadDashboard()
+                const params = new URLSearchParams(window.location.search)
+                params.delete('setup')
+                const next = params.toString()
+                window.history.replaceState(
+                  {},
+                  '',
+                  next ? `/dashboard?${next}` : '/dashboard',
+                )
+                return true
+              }}
+            />
+          </section>
+        ) : null}
+
         <section className="dash-next card">
           <p className="dash-section-label">Próximo paso recomendado</p>
           <h2>{nextAction.title}</h2>
           <p>{nextAction.body}</p>
-          <Link href={nextAction.href} className="dash-cta-primary">
-            {nextAction.cta}
-          </Link>
-          {nextAction.secondary && nextAction.secondaryHref && (
-            <Link href={nextAction.secondaryHref} className="dash-cta-secondary">
-              {nextAction.secondary}
+          {nextAction.href.startsWith('#') ? (
+            <a href={nextAction.href} className="dash-cta-primary">
+              {nextAction.cta}
+            </a>
+          ) : (
+            <Link href={nextAction.href} className="dash-cta-primary">
+              {nextAction.cta}
             </Link>
+          )}
+          {nextAction.secondary && nextAction.secondaryHref && (
+            nextAction.secondaryHref.startsWith('#') ? (
+              <a href={nextAction.secondaryHref} className="dash-cta-secondary">
+                {nextAction.secondary}
+              </a>
+            ) : (
+              <Link href={nextAction.secondaryHref} className="dash-cta-secondary">
+                {nextAction.secondary}
+              </Link>
+            )
           )}
         </section>
 
@@ -458,7 +564,7 @@ export default function Dashboard() {
               </p>
             )}
             <p className="dash-meta">0 sesiones como anfitrión</p>
-            <Link href="/onboarding" className="dash-link">
+            <Link href="/dashboard?setup=profile" className="dash-link">
               {teachSkills.length > 0 ? 'Editar habilidades' : 'Agregar habilidades'}
             </Link>
           </section>
@@ -483,7 +589,7 @@ export default function Dashboard() {
               </p>
             )}
             <p className="dash-meta">0 sesiones como aprendiz</p>
-            <Link href="/onboarding" className="dash-link">
+            <Link href="/dashboard?setup=profile" className="dash-link">
               {learnGoals.length > 0 ? 'Editar objetivos' : 'Agregar objetivos'}
             </Link>
           </section>
@@ -532,9 +638,9 @@ export default function Dashboard() {
                 ))}
               </ul>
             )}
-            <Link href="/onboarding" className="dash-cta-secondary">
+            <a href="#dash-profile-setup" className="dash-cta-secondary">
               Terminar perfil
-            </Link>
+            </a>
           </section>
         )}
 
@@ -578,12 +684,26 @@ export default function Dashboard() {
           </Link>
           <Link href="/matches">Conexiones</Link>
           <Link href="/sessions">Sesiones</Link>
-          <Link href="/onboarding">Perfil</Link>
+          <Link href="/dashboard?setup=profile">Perfil</Link>
         </nav>
         <button type="button" className="dash-sidebar-signout" onClick={signOut}>
           Cerrar sesión
         </button>
       </aside>
     </div>
+  )
+}
+
+export default function DashboardPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="dash-v2 dash-v2--loading">
+          <p>Cargando tu panel...</p>
+        </div>
+      }
+    >
+      <DashboardContent />
+    </Suspense>
   )
 }

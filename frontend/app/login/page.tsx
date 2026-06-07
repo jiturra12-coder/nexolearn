@@ -1,15 +1,31 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import Link from 'next/link'
+import { useState, useEffect, type FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
-import { SignInForm } from '@/components/auth/SignInForm'
-import { getLocalUser } from '@/lib/auth-session'
+import { supabase } from '@/lib/supabase'
+import { PasswordInput } from '@/components/auth/PasswordInput'
+import { AuthNotice } from '@/components/auth/AuthNotice'
+import { getLocalUser, withAuthRateLimitRetry } from '@/lib/auth-session'
+import { translateAuthError } from '@/lib/auth-messages'
 
 export default function LoginPage() {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(true)
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
   const router = useRouter()
 
   useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      if (params.get('reset') === 'success') {
+        setSuccess('Tu contraseña se actualizó correctamente. Inicia sesión.')
+        window.history.replaceState({}, '', '/login')
+      }
+    }
     checkSession()
   }, [])
 
@@ -17,9 +33,46 @@ export default function LoginPage() {
     const user = await getLocalUser()
     if (user?.email_confirmed_at) {
       router.replace('/dashboard')
+    } else if (user) {
+      router.replace('/dashboard?verify=1')
     } else {
       setLoading(false)
     }
+  }
+
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault()
+    setError('')
+
+    if (!email || !password) {
+      setError('Ingresa tu correo electrónico y contraseña.')
+      return
+    }
+
+    setBusy(true)
+
+    const { data, error: signInError } = await withAuthRateLimitRetry(() =>
+      supabase.auth.signInWithPassword({ email, password }),
+    )
+
+    setBusy(false)
+
+    if (signInError) {
+      const msg = translateAuthError(signInError.message)
+      if (msg.includes('Confirma tu correo')) {
+        router.push('/dashboard?verify=1')
+        return
+      }
+      setError(msg)
+      return
+    }
+
+    if (data.user && !data.user.email_confirmed_at) {
+      router.push('/dashboard?verify=1')
+      return
+    }
+
+    router.replace('/dashboard')
   }
 
   if (loading) {
@@ -40,7 +93,59 @@ export default function LoginPage() {
       </div>
 
       <div className="login-panel">
-        <SignInForm />
+        <h2>Inicia sesión en tu cuenta</h2>
+        <p className="auth-subcopy">
+          Accede a tus conexiones, sesiones y progreso.
+        </p>
+
+        <form onSubmit={handleSubmit}>
+          <label className="field-label" htmlFor="login-email">
+            Correo electrónico
+          </label>
+          <div className="input-box">
+            <input
+              id="login-email"
+              name="email"
+              type="email"
+              placeholder="tu@correo.com"
+              autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
+
+          <label className="field-label" htmlFor="login-password">
+            Contraseña
+          </label>
+          <PasswordInput
+            id="login-password"
+            name="password"
+            placeholder="Tu contraseña"
+            autoComplete="current-password"
+            value={password}
+            onChange={setPassword}
+          />
+
+          <p className="auth-forgot-row">
+            <Link href="/forgot-password" className="auth-link">
+              ¿Olvidaste tu contraseña?
+            </Link>
+          </p>
+
+          <AuthNotice variant="success" message={success} />
+          <AuthNotice variant="error" message={error} />
+
+          <button className="login-btn" type="submit" disabled={busy}>
+            {busy ? 'Iniciando sesión…' : 'Iniciar sesión'}
+          </button>
+        </form>
+
+        <p className="auth-switch">
+          ¿Nuevo en NexoLearn?{' '}
+          <Link href="/signup" className="auth-link">
+            Crea tu cuenta
+          </Link>
+        </p>
       </div>
     </div>
   )

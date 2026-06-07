@@ -37,7 +37,7 @@ export default function MatchesPage() {
           <Link href="/dashboard" className="dash-cta-primary">
             Volver al panel
           </Link>
-          <Link href="/onboarding" className="dash-cta-secondary">
+          <Link href="/dashboard?setup=profile" className="dash-cta-secondary">
             Editar perfil
           </Link>
         </section>

@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto'
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 import { getServerSiteUrl } from '@/lib/auth-redirect'
@@ -49,8 +50,9 @@ async function generateConfirmationLink(
   redirectTo: string,
 ) {
   const { data, error } = await admin.auth.admin.generateLink({
-    type: 'magiclink',
+    type: 'signup',
     email,
+    password: randomUUID(),
     options: { redirectTo },
   })
 
@@ -97,7 +99,7 @@ export async function POST(request: Request) {
     },
   })
 
-  const redirectTo = `${getServerSiteUrl(request)}/confirm-email`
+  const redirectTo = `${getServerSiteUrl(request)}/dashboard?setup=profile`
   const actionLink = await generateConfirmationLink(admin, email, redirectTo)
 
   if (!actionLink) {

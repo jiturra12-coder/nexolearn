@@ -3,7 +3,6 @@ const nextConfig = {
     return [
       { source: '/auth/login', destination: '/login', permanent: true },
       { source: '/auth/signup', destination: '/signup', permanent: true },
-      { source: '/mobile-signin', destination: '/mobile-signin.html', permanent: false },
     ]
   },
   async rewrites() {
